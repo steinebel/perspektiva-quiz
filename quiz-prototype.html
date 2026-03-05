@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Викторина ПЕРСПЕКТИВА 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #07071A;
+  --surface:  #0E0E2C;
+  --card:     rgba(255,255,255,0.05);
+  --border:   rgba(255,255,255,0.09);
+  --accent:   #7B5EFF;
+  --accent2:  #A08BFF;
+  --gold:     #F5C842;
+  --gold2:    #FFD96B;
+  --green:    #39D98A;
+  --red:      #FF5C7A;
+  --text:     #EEF0FF;
+  --muted:    rgba(238,240,255,0.45);
+  --r-lg:     20px;
+  --r-md:     14px;
+  --r-sm:     10px;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg);
+  font-family:'Manrope',sans-serif;
+  color:var(--text);
+  width:1080px;
+  height:1920px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ═══════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════ */
+.screen{
+  position:absolute;
+  inset:0;
+  width:1080px;
+  height:1920px;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.4s ease;
+  overflow:hidden;
+}
+.screen.active{
+  opacity:1;
+  pointer-events:all;
+}
+
+/* ═══════════════════════════════════════════
+   SHARED ATMOSPHERE
+═══════════════════════════════════════════ */
+.atmo{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+.atmo::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse 900px 700px at 50% 110%,rgba(123,94,255,.18) 0%,transparent 65%),
+    radial-gradient(ellipse 600px 400px at 10% 8%, rgba(123,94,255,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 500px 300px at 90% 4%, rgba(245,200,66,.06) 0%,transparent 55%);
+}
+.atmo::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:54px 54px;
+}
+.orb{
+  position:absolute;
+  bottom:-220px;
+  left:50%;
+  transform:translateX(-50%);
+  width:960px;height:960px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(123,94,255,.14) 0%,transparent 65%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ═══════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════ */
+
+/* Logo */
+.logo-wrap{display:flex;align-items:center;gap:14px}
+.logo-icon{width:38px;height:38px;flex-shrink:0}
+.logo-text{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.05em;line-height:1.25}
+.logo-sub{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:400;color:var(--muted);letter-spacing:.12em}
+
+/* Header bar */
+.topbar{
+  position:relative;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:52px 56px 0;
+  flex-shrink:0;
+}
+
+/* Pill */
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(123,94,255,.15);
+  border:1px solid rgba(123,94,255,.35);
+  border-radius:24px;padding:8px 20px;
+  font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;
+  color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;
+}
+.pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.pill.gold{background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.3);color:var(--gold)}
+.pill.gold .pill-dot{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.pill.green{background:rgba(57,217,138,.12);border-color:rgba(57,217,138,.3);color:var(--green)}
+
+/* Timer */
+.timer-wrap{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  margin-top:32px;gap:8px;flex-shrink:0;
+}
+.timer-ring-wrap{position:relative;width:96px;height:96px}
+.timer-ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(245,200,66,.12);stroke-width:5}
+.ring-fill{
+  fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;
+  stroke-dasharray:270;stroke-dashoffset:45;
+  filter:drop-shadow(0 0 8px rgba(245,200,66,.7));
+  transition:stroke-dashoffset 1s linear,stroke .4s;
+}
+.timer-num{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;
+  color:var(--gold);letter-spacing:-.02em;
+}
+.timer-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+
+/* Progress dots */
+.prog-dots{
+  position:relative;z-index:10;
+  display:flex;justify-content:center;gap:8px;margin-top:24px;flex-shrink:0;
+}
+.pdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .3s}
+.pdot.done{background:var(--green);box-shadow:0 0 8px rgba(57,217,138,.5)}
+.pdot.active{background:var(--accent);box-shadow:0 0 10px rgba(123,94,255,.7);width:24px;border-radius:4px}
+
+/* Question block */
+.q-block{position:relative;z-index:10;margin:32px 56px 0;flex-shrink:0}
+.q-meta{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.q-num{
+  font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;
+  color:var(--accent);background:rgba(123,94,255,.15);border:1px solid rgba(123,94,255,.3);
+  border-radius:8px;padding:6px 16px;white-space:nowrap;
+}
+.q-hint{font-size:13px;color:var(--muted);font-weight:500}
+.q-text{
+  font-family:'Unbounded',sans-serif;font-size:26px;font-weight:700;
+  line-height:1.35;color:var(--text);letter-spacing:-.01em;
+}
+
+/* Bottom bar */
+.btmbar{
+  position:relative;z-index:10;
+  margin-top:auto;
+  padding:28px 56px 52px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,.07);
+  background:rgba(7,7,26,.7);
+  backdrop-filter:blur(16px);
+  flex-shrink:0;
+}
+.brand{
+  font-family:'Unbounded',sans-serif;font-size:10px;font-weight:400;
+  color:rgba(255,255,255,.25);letter-spacing:.15em;text-transform:uppercase;line-height:1.6;
+}
+.brand em{font-style:normal;color:var(--accent2);font-weight:700}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  border:none;border-radius:16px;cursor:pointer;
+  font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:.04em;
+  transition:all .2s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#7B5EFF 0%,#9B7EFF 100%);
+  color:#fff;padding:20px 44px;font-size:14px;
+  box-shadow:0 6px 32px rgba(123,94,255,.45);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(123,94,255,.6)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-gold{
+  background:linear-gradient(135deg,#F5C842 0%,#FFD96B 100%);
+  color:#07071A;padding:20px 44px;font-size:14px;
+  box-shadow:0 6px 32px rgba(245,200,66,.4);
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(245,200,66,.55)}
+.btn-ghost{
+  background:transparent;border:1.5px solid rgba(255,255,255,.15);
+  color:var(--muted);padding:18px 32px;font-size:13px;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.3);color:var(--text)}
+.btn-green{
+  background:linear-gradient(135deg,#39D98A 0%,#6EE9B0 100%);
+  color:#07071A;padding:20px 44px;font-size:14px;
+  box-shadow:0 6px 32px rgba(57,217,138,.4);
+}
+
+/* Fade-up stagger */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fu0{animation:fadeUp .4s .05s both ease}
+.fu1{animation:fadeUp .4s .12s both ease}
+.fu2{animation:fadeUp .4s .20s both ease}
+.fu3{animation:fadeUp .4s .28s both ease}
+.fu4{animation:fadeUp .4s .36s both ease}
+.fu5{animation:fadeUp .4s .44s both ease}
+
+/* ═══════════════════════════════════════════
+   SCREEN 0 — START + LEADERBOARD
+═══════════════════════════════════════════ */
+#s0 .hero{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  padding:80px 56px 0;text-align:center;
+  flex-shrink:0;
+}
+#s0 .hero-tag{
+  font-family:'Unbounded',sans-serif;font-size:11px;font-weight:400;
+  letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:20px;
+}
+#s0 .hero-title{
+  font-family:'Unbounded',sans-serif;font-size:72px;font-weight:900;
+  line-height:1;letter-spacing:-.02em;margin-bottom:16px;
+  background:linear-gradient(135deg,#EEF0FF 0%,var(--accent2) 50%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+#s0 .hero-sub{
+  font-size:18px;color:var(--muted);font-weight:500;
+  line-height:1.5;margin-bottom:48px;max-width:600px;
+}
+#s0 .start-btn{
+  background:linear-gradient(135deg,#7B5EFF 0%,#A08BFF 100%);
+  border:none;border-radius:20px;padding:28px 80px;
+  font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;
+  color:#fff;cursor:pointer;letter-spacing:.06em;
+  box-shadow:0 8px 48px rgba(123,94,255,.55);
+  transition:all .25s;
+}
+#s0 .start-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 60px rgba(123,94,255,.7)}
+
+#s0 .leaderboard{
+  position:relative;z-index:10;
+  margin:48px 56px 0;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:24px;overflow:hidden;
+  flex-shrink:0;
+}
+#s0 .lb-head{
+  padding:24px 32px 20px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:12px;
+}
+#s0 .lb-head-title{
+  font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;
+  color:var(--gold);
+}
+#s0 .lb-row{
+  display:flex;align-items:center;gap:16px;
+  padding:18px 32px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  transition:background .2s;
+}
+#s0 .lb-row:last-child{border-bottom:none}
+#s0 .lb-row:hover{background:rgba(255,255,255,.03)}
+#s0 .lb-rank{
+  font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;
+  color:var(--muted);width:32px;flex-shrink:0;text-align:center;
+}
+#s0 .lb-row.top1 .lb-rank{color:var(--gold)}
+#s0 .lb-row.top2 .lb-rank{color:#C0C0C0}
+#s0 .lb-row.top3 .lb-rank{color:#CD7F32}
+#s0 .lb-name{flex:1;font-size:16px;font-weight:600}
+#s0 .lb-score{
+  font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;
+  color:var(--gold);
+}
+#s0 .lb-star{font-size:12px;color:var(--gold);margin-left:4px}
+
+/* ═══════════════════════════════════════════
+   SCREEN 1 — TYPE 1: DRAG & DROP BASKETS
+═══════════════════════════════════════════ */
+.cards-section{position:relative;z-index:10;margin:28px 56px 0;flex-shrink:0}
+.sec-label{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);font-weight:600;margin-bottom:14px}
+.cards-pool{display:flex;flex-direction:column;gap:10px}
+.drag-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:16px;
+  padding:18px 22px;display:flex;align-items:center;gap:14px;
+  cursor:grab;user-select:none;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
+}
+.drag-card:hover{border-color:rgba(123,94,255,.5);transform:translateY(-2px) scale(1.01);box-shadow:0 8px 28px rgba(123,94,255,.18)}
+.drag-card.dragging{opacity:.3;transform:scale(.97)}
+.drag-card.placed{display:none}
+.drag-handle{display:flex;flex-direction:column;gap:3px;flex-shrink:0;opacity:.35}
+.drag-handle span{display:block;width:18px;height:2px;background:var(--text);border-radius:1px}
+.drag-card-text{font-size:16px;font-weight:600;line-height:1.4;flex:1}
+
+.zones{position:relative;z-index:10;margin:24px 56px 0;display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-shrink:0}
+.drop-zone{
+  border-radius:20px;border:2px dashed rgba(255,255,255,.14);
+  padding:18px;min-height:200px;
+  display:flex;flex-direction:column;gap:8px;
+  transition:all .25s;
+}
+.drop-zone.zone-a{border-color:rgba(123,94,255,.28);background:rgba(123,94,255,.08)}
+.drop-zone.zone-b{border-color:rgba(245,200,66,.25);background:rgba(245,200,66,.07)}
+.drop-zone.drag-over.zone-a{border-color:var(--accent);background:rgba(123,94,255,.18);box-shadow:0 0 40px rgba(123,94,255,.22);transform:scale(1.02)}
+.drop-zone.drag-over.zone-b{border-color:var(--gold);background:rgba(245,200,66,.16);box-shadow:0 0 40px rgba(245,200,66,.18);transform:scale(1.02)}
+.zone-hdr{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.zone-letter{
+  font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.zone-a .zone-letter{background:rgba(123,94,255,.25);color:var(--accent2);border:1px solid rgba(123,94,255,.4)}
+.zone-b .zone-letter{background:rgba(245,200,66,.2);color:var(--gold);border:1px solid rgba(245,200,66,.4)}
+.zone-name{font-size:12px;font-weight:700;line-height:1.3}
+.zone-a .zone-name{color:var(--accent2)}
+.zone-b .zone-name{color:var(--gold)}
+.zone-empty{font-size:12px;color:var(--muted);text-align:center;padding:20px 0;opacity:.7}
+.zone-card{
+  border-radius:10px;padding:10px 14px;
+  font-size:13px;font-weight:600;line-height:1.35;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  animation:dropIn .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes dropIn{from{opacity:0;transform:scale(.8) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.zone-a .zone-card{background:rgba(123,94,255,.2);border:1px solid rgba(123,94,255,.35)}
+.zone-b .zone-card{background:rgba(245,200,66,.14);border:1px solid rgba(245,200,66,.3)}
+.zone-card-rm{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,.07);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:11px;flex-shrink:0;transition:all .2s;
+}
+.zone-card-rm:hover{background:rgba(255,92,122,.25);color:var(--red)}
+
+.ghost-card{
+  position:fixed;pointer-events:none;z-index:9999;
+  background:rgba(123,94,255,.28);border:2px solid var(--accent);
+  border-radius:14px;padding:14px 20px;
+  font-size:14px;font-weight:600;color:var(--text);
+  box-shadow:0 16px 48px rgba(123,94,255,.5);
+  max-width:380px;opacity:0;transition:opacity .1s;
+  backdrop-filter:blur(10px);
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 2 — TYPE 3: SINGLE ANSWER
+═══════════════════════════════════════════ */
+.answers-col{position:relative;z-index:10;margin:28px 56px 0;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
+.ans-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:18px;
+  padding:22px 26px;display:flex;align-items:center;gap:18px;
+  cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);
+}
+.ans-card:hover{border-color:rgba(123,94,255,.5);transform:translateX(4px);box-shadow:0 6px 28px rgba(123,94,255,.18)}
+.ans-card.selected{border-color:var(--accent);background:rgba(123,94,255,.14);box-shadow:0 0 32px rgba(123,94,255,.2)}
+.ans-card.correct{border-color:var(--green);background:rgba(57,217,138,.1);box-shadow:0 0 40px rgba(57,217,138,.2);animation:pulseGreen 2s ease infinite}
+.ans-card.wrong{border-color:var(--red);background:rgba(255,92,122,.07);opacity:.65}
+@keyframes pulseGreen{0%,100%{box-shadow:0 0 32px rgba(57,217,138,.2)}50%{box-shadow:0 0 52px rgba(57,217,138,.4)}}
+.ans-letter{
+  font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;
+  width:46px;height:46px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  color:var(--muted);transition:all .22s;
+}
+.ans-card.selected .ans-letter{background:rgba(123,94,255,.25);border-color:var(--accent);color:var(--accent2)}
+.ans-card.correct .ans-letter{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 0 18px rgba(57,217,138,.5)}
+.ans-card.wrong .ans-letter{background:var(--red);border-color:var(--red);color:#fff}
+.ans-text{font-size:17px;font-weight:600;line-height:1.4;flex:1}
+.ans-icon{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .3s}
+.ans-card.correct .ans-icon{opacity:1;background:var(--green);box-shadow:0 0 14px rgba(57,217,138,.6)}
+.ans-card.wrong   .ans-icon{opacity:1;background:var(--red)}
+
+/* ═══════════════════════════════════════════
+   SCREEN 3 — TYPE 2: SEQUENCE
+═══════════════════════════════════════════ */
+.seq-list{position:relative;z-index:10;margin:28px 56px 0;display:flex;flex-direction:column;gap:12px;flex-shrink:0}
+.seq-item{
+  background:var(--card);border:1.5px solid var(--border);border-radius:16px;
+  padding:18px 22px;display:flex;align-items:center;gap:16px;
+  cursor:grab;user-select:none;transition:all .2s;
+}
+.seq-item:hover{border-color:rgba(123,94,255,.4);box-shadow:0 4px 20px rgba(123,94,255,.14)}
+.seq-item.seq-dragging{opacity:.3;transform:scale(.98)}
+.seq-item.seq-over{border-color:var(--gold);background:rgba(245,200,66,.08)}
+.seq-num{
+  font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;
+  width:36px;height:36px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(123,94,255,.18);border:1px solid rgba(123,94,255,.3);
+  color:var(--accent2);transition:all .3s;
+}
+.seq-item.correct-pos .seq-num{background:rgba(57,217,138,.2);border-color:var(--green);color:var(--green)}
+.seq-text{font-size:16px;font-weight:600;line-height:1.4;flex:1}
+.seq-grip{display:flex;flex-direction:column;gap:3px;flex-shrink:0;opacity:.3}
+.seq-grip span{display:block;width:16px;height:2px;background:var(--text);border-radius:1px}
+
+/* ═══════════════════════════════════════════
+   SCREEN 4 — TYPE 4: REMOVE EXTRA
+═══════════════════════════════════════════ */
+.remove-grid{position:relative;z-index:10;margin:28px 56px 0;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
+.rm-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:18px;
+  padding:22px 26px;display:flex;align-items:center;gap:16px;
+  cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);
+}
+.rm-card:hover{border-color:rgba(255,92,122,.4);box-shadow:0 4px 24px rgba(255,92,122,.15)}
+.rm-card.removed{
+  border-color:var(--red);background:rgba(255,92,122,.1);
+  transform:scale(.98);
+}
+.rm-card.removed .rm-text{text-decoration:line-through;color:var(--red);opacity:.7}
+.rm-card.correct-keep{border-color:var(--green);background:rgba(57,217,138,.08)}
+.rm-dot{
+  width:12px;height:12px;border-radius:50%;flex-shrink:0;
+  border:2px solid var(--border);background:transparent;transition:all .2s;
+}
+.rm-card.removed   .rm-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 10px rgba(255,92,122,.5)}
+.rm-card.correct-keep .rm-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 10px rgba(57,217,138,.5)}
+.rm-text{font-size:17px;font-weight:600;line-height:1.4;flex:1;transition:all .2s}
+
+/* ═══════════════════════════════════════════
+   SCREEN 5 — ANSWER RESULT
+═══════════════════════════════════════════ */
+#s5 .result-center{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  padding:100px 56px 0;text-align:center;flex-shrink:0;
+}
+#s5 .result-icon{
+  width:120px;height:120px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;margin-bottom:32px;
+}
+#s5 .result-icon.correct-icon{
+  background:rgba(57,217,138,.15);border:2px solid rgba(57,217,138,.4);
+  box-shadow:0 0 60px rgba(57,217,138,.3);
+  animation:scalePop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+#s5 .result-icon.wrong-icon{
+  background:rgba(255,92,122,.12);border:2px solid rgba(255,92,122,.3);
+  box-shadow:0 0 50px rgba(255,92,122,.2);
+}
+@keyframes scalePop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+#s5 .result-label{font-family:'Unbounded',sans-serif;font-size:36px;font-weight:900;margin-bottom:12px}
+#s5 .result-label.ok{color:var(--green)}
+#s5 .result-label.fail{color:var(--red)}
+#s5 .result-pts{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:8px}
+#s5 .result-sub{font-size:16px;color:var(--muted);max-width:560px;line-height:1.55}
+
+#s5 .answer-reveal{
+  position:relative;z-index:10;
+  margin:48px 56px 0;
+  background:rgba(57,217,138,.07);border:1px solid rgba(57,217,138,.25);
+  border-radius:20px;padding:28px 32px;flex-shrink:0;
+}
+#s5 .ar-label{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--green);font-weight:700;margin-bottom:12px}
+#s5 .ar-text{font-size:17px;font-weight:600;line-height:1.5;color:var(--text)}
+
+#s5 .score-bump{
+  position:relative;z-index:10;
+  margin:24px 56px 0;
+  display:flex;gap:16px;flex-shrink:0;
+}
+#s5 .bump-card{
+  flex:1;background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:20px;display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;
+}
+#s5 .bump-val{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900}
+#s5 .bump-lbl{font-size:12px;color:var(--muted);font-weight:600}
+
+/* ═══════════════════════════════════════════
+   SCREEN 6 — FINAL LEADERBOARD
+═══════════════════════════════════════════ */
+#s6 .fin-hero{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  padding:72px 56px 0;text-align:center;flex-shrink:0;
+}
+#s6 .fin-trophy{font-size:80px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+#s6 .fin-title{
+  font-family:'Unbounded',sans-serif;font-size:48px;font-weight:900;
+  line-height:1.1;margin-bottom:8px;
+  background:linear-gradient(135deg,#EEF0FF 0%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+#s6 .fin-sub{font-size:16px;color:var(--muted);font-weight:500;margin-bottom:0}
+
+#s6 .fin-podium{
+  position:relative;z-index:10;
+  margin:40px 56px 0;display:flex;align-items:flex-end;justify-content:center;gap:12px;flex-shrink:0;
+}
+.podium-block{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  flex:1;
+}
+.podium-avatar{
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;
+}
+.podium-name{font-size:13px;font-weight:700;text-align:center;line-height:1.3}
+.podium-score{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:var(--gold)}
+.podium-bar{
+  width:100%;border-radius:12px 12px 0 0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;color:#fff;
+}
+.p1 .podium-bar{height:140px;background:linear-gradient(180deg,rgba(245,200,66,.9),rgba(245,200,66,.5));box-shadow:0 -8px 40px rgba(245,200,66,.35)}
+.p2 .podium-bar{height:100px;background:linear-gradient(180deg,rgba(192,192,192,.7),rgba(192,192,192,.3));box-shadow:0 -6px 28px rgba(192,192,192,.2)}
+.p3 .podium-bar{height:72px;background:linear-gradient(180deg,rgba(205,127,50,.6),rgba(205,127,50,.25));box-shadow:0 -4px 20px rgba(205,127,50,.15)}
+.p1 .podium-avatar{background:rgba(245,200,66,.2);border:2px solid var(--gold);color:var(--gold)}
+.p2 .podium-avatar{background:rgba(192,192,192,.15);border:2px solid #C0C0C0;color:#C0C0C0}
+.p3 .podium-avatar{background:rgba(205,127,50,.15);border:2px solid #CD7F32;color:#CD7F32}
+
+#s6 .fin-list{
+  position:relative;z-index:10;
+  margin:24px 56px 0;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;flex-shrink:0;
+}
+#s6 .fin-row{
+  display:flex;align-items:center;gap:16px;
+  padding:16px 28px;border-bottom:1px solid rgba(255,255,255,.05);
+}
+#s6 .fin-row:last-child{border-bottom:none}
+#s6 .fin-rank{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--muted);width:28px;text-align:center}
+#s6 .fin-name{flex:1;font-size:15px;font-weight:600}
+#s6 .fin-pts{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:var(--gold)}
+#s6 .fin-dots{
+  display:flex;gap:3px;margin:0 8px;align-items:center;
+}
+#s6 .fin-dot-line{flex:1;height:1px;border-bottom:1px dotted rgba(255,255,255,.15);margin:0 8px}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     SCREEN 0: START
+════════════════════════════════════════ -->
+<div class="screen active" id="s0">
+  <div class="atmo"></div><div class="orb"></div>
+
+  <header class="topbar fu0">
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none">
+        <path d="M9 29L19 9L29 29" stroke="#F5C842" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12.5 23H25.5" stroke="#F5C842" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="19" cy="32" r="3" fill="#7B5EFF"/>
+      </svg>
+      <div><div class="logo-text">ПЕРСПЕКТИВА</div><div class="logo-sub">ВО ВСЁМ · 2026</div></div>
+    </div>
+    <div class="pill gold"><span class="pill-dot"></span>AstraZeneca</div>
+  </header>
+
+  <div class="hero fu1">
+    <div class="hero-tag">Энергия инноваций команды</div>
+    <div class="hero-title">ВИКТОРИНА</div>
+    <div class="hero-sub">4 типа заданий · 32 вопроса<br>Отвечайте быстрее — получайте больше очков</div>
+    <button class="start-btn" onclick="goTo('s1')">ИГРАТЬ →</button>
+  </div>
+
+  <div class="leaderboard fu2">
+    <div class="lb-head">
+      <span style="font-size:20px">🏆</span>
+      <span class="lb-head-title">Таблица лидеров</span>
+    </div>
+    <div class="lb-row top1"><div class="lb-rank">🥇</div><div class="lb-name">Михаил Колтунов</div><div class="lb-score">43</div><span class="lb-star">★</span></div>
+    <div class="lb-row top2"><div class="lb-rank">🥈</div><div class="lb-name">Софья Гайдукова</div><div class="lb-score">42</div><span class="lb-star">★</span></div>
+    <div class="lb-row top3"><div class="lb-rank">🥉</div><div class="lb-name">Мамуров Бехруз</div><div class="lb-score">40</div><span class="lb-star">★</span></div>
+    <div class="lb-row"><div class="lb-rank">4</div><div class="lb-name">Сафонцев Иван</div><div class="lb-score">38</div><span class="lb-star">★</span></div>
+    <div class="lb-row"><div class="lb-rank">5</div><div class="lb-name">Иван С.</div><div class="lb-score">30</div><span class="lb-star">★</span></div>
+    <div class="lb-row"><div class="lb-rank">6</div><div class="lb-name">Елена Нечаева</div><div class="lb-score">28</div><span class="lb-star">★</span></div>
+  </div>
+
+  <div class="btmbar" style="margin-top:auto">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 1: TYPE 1 — DRAG & DROP
+════════════════════════════════════════ -->
+<div class="screen" id="s1">
+  <div class="atmo"></div><div class="orb"></div>
+  <div class="ghost-card" id="ghost1"></div>
+
+  <header class="topbar fu0">
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none">
+        <path d="M9 29L19 9L29 29" stroke="#F5C842" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12.5 23H25.5" stroke="#F5C842" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="19" cy="32" r="3" fill="#7B5EFF"/>
+      </svg>
+      <div><div class="logo-text">ПЕРСПЕКТИВА</div><div class="logo-sub">ВО ВСЁМ · 2026</div></div>
+    </div>
+    <div class="pill"><span class="pill-dot"></span>Тип 1</div>
+  </header>
+
+  <div class="timer-wrap fu1" id="timerWrap1">
+    <div class="timer-ring-wrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle class="ring-bg" cx="48" cy="48" r="43"/>
+        <circle class="ring-fill" id="ring1" cx="48" cy="48" r="43"/>
+      </svg>
+      <div class="timer-num" id="tnum1">1:00</div>
+    </div>
+    <span class="timer-label">Осталось</span>
+  </div>
+
+  <div class="prog-dots fu1">
+    <div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div>
+    <div class="pdot active"></div>
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div><div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+  </div>
+
+  <div class="q-block fu2">
+    <div class="q-meta">
+      <div class="q-num">№ 4</div>
+      <div class="q-hint">Перетащите в нужную корзину</div>
+    </div>
+    <div class="q-text">Диагностика I–II vs III–IV стадии НМРЛ</div>
+  </div>
+
+  <div class="cards-section fu3">
+    <div class="sec-label">Перетащите каждый элемент</div>
+    <div class="cards-pool" id="pool1">
+      <div class="drag-card" draggable="true" data-id="c1" data-text="КТ органов грудной клетки с контрастированием"><div class="drag-handle"><span></span><span></span><span></span></div><div class="drag-card-text">КТ органов грудной клетки с контрастированием</div></div>
+      <div class="drag-card" draggable="true" data-id="c2" data-text="ФВД / ОФВ1"><div class="drag-handle"><span></span><span></span><span></span></div><div class="drag-card-text">ФВД / ОФВ1</div></div>
+      <div class="drag-card" draggable="true" data-id="c3" data-text="Экспрессия PD-L1"><div class="drag-handle"><span></span><span></span><span></span></div><div class="drag-card-text">Экспрессия PD-L1</div></div>
+      <div class="drag-card" draggable="true" data-id="c4" data-text="МРТ головного мозга"><div class="drag-handle"><span></span><span></span><span></span></div><div class="drag-card-text">МРТ головного мозга</div></div>
+      <div class="drag-card" draggable="true" data-id="c5" data-text="ПЭТ-КТ"><div class="drag-handle"><span></span><span></span><span></span></div><div class="drag-card-text">ПЭТ-КТ</div></div>
+      <div class="drag-card" draggable="true" data-id="c6" data-text="Биопсия опухоли"><div class="drag-handle"><span></span><span></span><span></span></div><div class="drag-card-text">Биопсия опухоли</div></div>
+    </div>
+  </div>
+
+  <div class="zones fu4" id="zones1">
+    <div class="drop-zone zone-a" id="zA1">
+      <div class="zone-hdr"><div class="zone-letter">А</div><div class="zone-name">I–II стадия</div></div>
+      <div class="zone-empty" id="hA1">Перетащите сюда</div>
+    </div>
+    <div class="drop-zone zone-b" id="zB1">
+      <div class="zone-hdr"><div class="zone-letter">Б</div><div class="zone-name">III–IV стадия</div></div>
+      <div class="zone-empty" id="hB1">Перетащите сюда</div>
+    </div>
+  </div>
+
+  <div class="btmbar fu5">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+    <button class="btn btn-primary" id="confirmBtn1" disabled onclick="goTo('s5_correct')">Подтвердить →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 2: TYPE 3 — SINGLE ANSWER
+════════════════════════════════════════ -->
+<div class="screen" id="s2">
+  <div class="atmo"></div><div class="orb"></div>
+
+  <header class="topbar fu0">
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none">
+        <path d="M9 29L19 9L29 29" stroke="#F5C842" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12.5 23H25.5" stroke="#F5C842" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="19" cy="32" r="3" fill="#7B5EFF"/>
+      </svg>
+      <div><div class="logo-text">ПЕРСПЕКТИВА</div><div class="logo-sub">ВО ВСЁМ · 2026</div></div>
+    </div>
+    <div class="pill"><span class="pill-dot"></span>Тип 3</div>
+  </header>
+
+  <div class="timer-wrap fu1">
+    <div class="timer-ring-wrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle class="ring-bg" cx="48" cy="48" r="43"/>
+        <circle class="ring-fill" id="ring2" cx="48" cy="48" r="43"/>
+      </svg>
+      <div class="timer-num" id="tnum2">1:00</div>
+    </div>
+    <span class="timer-label">Осталось</span>
+  </div>
+
+  <div class="prog-dots fu1">
+    <div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div>
+    <div class="pdot active"></div>
+    <div class="pdot"></div><div class="pdot"></div><div class="pdot"></div><div class="pdot"></div>
+  </div>
+
+  <div class="q-block fu2">
+    <div class="q-meta">
+      <div class="q-num">№ 19</div>
+      <div class="q-hint">Выберите один правильный ответ</div>
+    </div>
+    <div class="q-text">Укажите показание датопотамаба дерукстекана в раке лёгкого</div>
+  </div>
+
+  <div class="answers-col fu3" id="answersCol2">
+    <div class="ans-card" data-correct="false" onclick="selectAnswer(this,'s2')">
+      <div class="ans-letter">А</div>
+      <div class="ans-text">Стадия I без дополнительных критериев</div>
+      <div class="ans-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
+    </div>
+    <div class="ans-card" data-correct="true" onclick="selectAnswer(this,'s2')">
+      <div class="ans-letter">Б</div>
+      <div class="ans-text">EGFRm НМРЛ после исчерпанных опций ИТК EGFR и химиотерапии</div>
+      <div class="ans-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="ans-card" data-correct="false" onclick="selectAnswer(this,'s2')">
+      <div class="ans-letter">В</div>
+      <div class="ans-text">НМРЛ с экспрессией TROP2 без учёта мутационного статуса</div>
+      <div class="ans-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
+    </div>
+    <div class="ans-card" data-correct="false" onclick="selectAnswer(this,'s2')">
+      <div class="ans-letter">Г</div>
+      <div class="ans-text">Плоскоклеточный НМРЛ любой стадии в первой линии</div>
+      <div class="ans-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 2.5L9.5 9.5M9.5 2.5L2.5 9.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
+    </div>
+  </div>
+
+  <div class="btmbar fu4">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+    <button class="btn btn-primary" id="confirmBtn2" disabled onclick="goTo('s5_correct')">Подтвердить →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 3: TYPE 2 — SEQUENCE
+════════════════════════════════════════ -->
+<div class="screen" id="s3">
+  <div class="atmo"></div><div class="orb"></div>
+
+  <header class="topbar fu0">
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none">
+        <path d="M9 29L19 9L29 29" stroke="#F5C842" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12.5 23H25.5" stroke="#F5C842" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="19" cy="32" r="3" fill="#7B5EFF"/>
+      </svg>
+      <div><div class="logo-text">ПЕРСПЕКТИВА</div><div class="logo-sub">ВО ВСЁМ · 2026</div></div>
+    </div>
+    <div class="pill"><span class="pill-dot"></span>Тип 2</div>
+  </header>
+
+  <div class="timer-wrap fu1">
+    <div class="timer-ring-wrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle class="ring-bg" cx="48" cy="48" r="43"/>
+        <circle class="ring-fill" id="ring3" cx="48" cy="48" r="43"/>
+      </svg>
+      <div class="timer-num" id="tnum3">1:00</div>
+    </div>
+    <span class="timer-label">Осталось</span>
+  </div>
+
+  <div class="prog-dots fu1">
+    <div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div>
+    <div class="pdot active"></div>
+    <div class="pdot"></div><div class="pdot"></div>
+  </div>
+
+  <div class="q-block fu2">
+    <div class="q-meta">
+      <div class="q-num">№ 11</div>
+      <div class="q-hint">Перетащите — выстройте правильный порядок</div>
+    </div>
+    <div class="q-text">Путь пациента при подозрении на I стадию рака лёгкого</div>
+  </div>
+
+  <div class="seq-list fu3" id="seqList">
+    <div class="seq-item" draggable="true" data-order="3"><div class="seq-num">1</div><div class="seq-text">Фибробронхоскопия</div><div class="seq-grip"><span></span><span></span><span></span></div></div>
+    <div class="seq-item" draggable="true" data-order="1"><div class="seq-num">2</div><div class="seq-text">Рентгенография органов грудной клетки</div><div class="seq-grip"><span></span><span></span><span></span></div></div>
+    <div class="seq-item" draggable="true" data-order="5"><div class="seq-num">3</div><div class="seq-text">Биопсия + МГИ на EGFR и ALK</div><div class="seq-grip"><span></span><span></span><span></span></div></div>
+    <div class="seq-item" draggable="true" data-order="2"><div class="seq-num">4</div><div class="seq-text">КТ органов грудной клетки с контрастированием</div><div class="seq-grip"><span></span><span></span><span></span></div></div>
+    <div class="seq-item" draggable="true" data-order="4"><div class="seq-num">5</div><div class="seq-text">Оценка ФВД / ОФВ1</div><div class="seq-grip"><span></span><span></span><span></span></div></div>
+  </div>
+
+  <div class="btmbar fu4">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+    <button class="btn btn-primary" onclick="goTo('s5_correct')">Подтвердить →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 4: TYPE 4 — REMOVE EXTRA
+════════════════════════════════════════ -->
+<div class="screen" id="s4">
+  <div class="atmo"></div><div class="orb"></div>
+
+  <header class="topbar fu0">
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none">
+        <path d="M9 29L19 9L29 29" stroke="#F5C842" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12.5 23H25.5" stroke="#F5C842" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="19" cy="32" r="3" fill="#7B5EFF"/>
+      </svg>
+      <div><div class="logo-text">ПЕРСПЕКТИВА</div><div class="logo-sub">ВО ВСЁМ · 2026</div></div>
+    </div>
+    <div class="pill"><span class="pill-dot"></span>Тип 4</div>
+  </header>
+
+  <div class="timer-wrap fu1">
+    <div class="timer-ring-wrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle class="ring-bg" cx="48" cy="48" r="43"/>
+        <circle class="ring-fill" id="ring4" cx="48" cy="48" r="43"/>
+      </svg>
+      <div class="timer-num" id="tnum4">1:00</div>
+    </div>
+    <span class="timer-label">Осталось</span>
+  </div>
+
+  <div class="prog-dots fu1">
+    <div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div><div class="pdot done"></div>
+    <div class="pdot active"></div>
+  </div>
+
+  <div class="q-block fu2">
+    <div class="q-meta">
+      <div class="q-num">№ 26</div>
+      <div class="q-hint">Нажмите на лишнее — уберите его</div>
+    </div>
+    <div class="q-text">Объём диагностических обследований при I стадии НМРЛ</div>
+  </div>
+
+  <div class="remove-grid fu3" id="rmGrid">
+    <div class="rm-card" data-extra="false" onclick="toggleRemove(this)">
+      <div class="rm-dot"></div>
+      <div class="rm-text">КТ органов грудной клетки</div>
+    </div>
+    <div class="rm-card" data-extra="false" onclick="toggleRemove(this)">
+      <div class="rm-dot"></div>
+      <div class="rm-text">Функция внешнего дыхания</div>
+    </div>
+    <div class="rm-card" data-extra="false" onclick="toggleRemove(this)">
+      <div class="rm-dot"></div>
+      <div class="rm-text">МРТ головного мозга</div>
+    </div>
+    <div class="rm-card" data-extra="false" onclick="toggleRemove(this)">
+      <div class="rm-dot"></div>
+      <div class="rm-text">Биопсия опухоли</div>
+    </div>
+    <div class="rm-card" data-extra="true" onclick="toggleRemove(this)">
+      <div class="rm-dot"></div>
+      <div class="rm-text">ПЭТ-КТ</div>
+    </div>
+  </div>
+
+  <div class="btmbar fu4">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+    <button class="btn btn-primary" id="confirmBtn4" disabled onclick="goTo('s5_correct')">Подтвердить →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 5: RESULT (correct / wrong)
+════════════════════════════════════════ -->
+<div class="screen" id="s5">
+  <div class="atmo"></div><div class="orb"></div>
+
+  <header class="topbar fu0">
+    <div class="logo-wrap">
+      <svg class="logo-icon" viewBox="0 0 38 38" fill="none">
+        <path d="M9 29L19 9L29 29" stroke="#F5C842" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12.5 23H25.5" stroke="#F5C842" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="19" cy="32" r="3" fill="#7B5EFF"/>
+      </svg>
+      <div><div class="logo-text">ПЕРСПЕКТИВА</div><div class="logo-sub">ВО ВСЁМ · 2026</div></div>
+    </div>
+    <div class="pill green"><span class="pill-dot" style="background:var(--green);box-shadow:0 0 10px var(--green)"></span>Результат</div>
+  </header>
+
+  <div class="result-center">
+    <div class="result-icon correct-icon fu1">✓</div>
+    <div class="result-label ok fu2">Верно!</div>
+    <div class="result-pts fu2">+10 очков</div>
+    <div class="result-sub fu3">Датопотамаб дерукстекан показан пациентам с EGFRm НМРЛ после прогрессии на ИТК EGFR и платиновой химиотерапии.</div>
+  </div>
+
+  <div class="answer-reveal fu3">
+    <div class="ar-label">Правильный ответ</div>
+    <div class="ar-text">Б — EGFRm НМРЛ после исчерпанных опций ИТК EGFR и химиотерапии</div>
+  </div>
+
+  <div class="score-bump fu4">
+    <div class="bump-card">
+      <div class="bump-val" style="color:var(--gold)">+10</div>
+      <div class="bump-lbl">Очков</div>
+    </div>
+    <div class="bump-card">
+      <div class="bump-val" style="color:var(--accent2)">9/10</div>
+      <div class="bump-lbl">Вопросов</div>
+    </div>
+    <div class="bump-card">
+      <div class="bump-val" style="color:var(--green)">0:38</div>
+      <div class="bump-lbl">Времени</div>
+    </div>
+  </div>
+
+  <div class="btmbar fu5">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+    <button class="btn btn-primary" onclick="goTo('s6')">Следующий →</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCREEN 6: FINAL LEADERBOARD
+════════════════════════════════════════ -->
+<div class="screen" id="s6">
+  <div class="atmo"></div><div class="orb"></div>
+
+  <div class="fin-hero fu0">
+    <div class="fin-trophy">🏆</div>
+    <div class="fin-title">Финал!</div>
+    <div class="fin-sub">Викторина завершена · 32 вопроса пройдено</div>
+  </div>
+
+  <div class="fin-podium fu1">
+    <div class="podium-block p2">
+      <div class="podium-avatar">СГ</div>
+      <div class="podium-name">Софья Гайдукова</div>
+      <div class="podium-score">420 ★</div>
+      <div class="podium-bar">2</div>
+    </div>
+    <div class="podium-block p1">
+      <div class="podium-avatar">МК</div>
+      <div class="podium-name">Михаил Колтунов</div>
+      <div class="podium-score">480 ★</div>
+      <div class="podium-bar">1</div>
+    </div>
+    <div class="podium-block p3">
+      <div class="podium-avatar">МБ</div>
+      <div class="podium-name">Мамуров Бехруз</div>
+      <div class="podium-score">390 ★</div>
+      <div class="podium-bar">3</div>
+    </div>
+  </div>
+
+  <div class="fin-list fu2">
+    <div class="fin-row"><div class="fin-rank">4</div><div class="fin-name">Сафонцев Иван</div><div class="fin-dot-line"></div><div class="fin-pts">370 ★</div></div>
+    <div class="fin-row"><div class="fin-rank">5</div><div class="fin-name">Елена Нечаева</div><div class="fin-dot-line"></div><div class="fin-pts">340 ★</div></div>
+    <div class="fin-row"><div class="fin-rank">6</div><div class="fin-name">Иван С.</div><div class="fin-dot-line"></div><div class="fin-pts">310 ★</div></div>
+    <div class="fin-row"><div class="fin-rank">7</div><div class="fin-name">Ольга Захарова</div><div class="fin-dot-line"></div><div class="fin-pts">280 ★</div></div>
+    <div class="fin-row" style="background:rgba(123,94,255,.12)"><div class="fin-rank" style="color:var(--accent2)">12</div><div class="fin-name" style="color:var(--accent2)">Вы</div><div class="fin-dot-line"></div><div class="fin-pts">220 ★</div></div>
+  </div>
+
+  <div class="btmbar fu3">
+    <div class="brand">ПЕРСПЕКТИВА<br><em>ВО ВСЁМ</em> 2026 Г.</div>
+    <button class="btn btn-ghost" onclick="goTo('s0')">← В начало</button>
+    <button class="btn btn-gold" onclick="goTo('s0')">Играть снова</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     NAVIGATION DEV BAR (remove for prod)
+════════════════════════════════════════ -->
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;gap:6px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.1);font-family:monospace;font-size:11px">
+  <span style="color:rgba(255,255,255,.4);padding:4px 8px">ЭКРАНЫ:</span>
+  <button onclick="goTo('s0')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">0 Старт</button>
+  <button onclick="goTo('s1')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">1 Корзины</button>
+  <button onclick="goTo('s2')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">2 Выбор</button>
+  <button onclick="goTo('s3')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">3 Порядок</button>
+  <button onclick="goTo('s4')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">4 Убрать</button>
+  <button onclick="goTo('s5')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">5 Результат</button>
+  <button onclick="goTo('s6')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:11px">6 Финал</button>
+</div>
+
+<script>
+// ── NAVIGATION ──
+const screens = ['s0','s1','s2','s3','s4','s5','s6'];
+let activeTimers = {};
+
+function goTo(id){
+  // handle pseudo-routes
+  if(id === 's5_correct') id = 's5';
+
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+  });
+  const target = document.getElementById(id);
+  if(target){ target.classList.add('active'); }
+
+  // restart timer for question screens
+  if(['s1','s2','s3','s4'].includes(id)){
+    startTimer(id);
+  }
+}
+
+// ── TIMERS ──
+const CIRCUMFERENCE = 2 * Math.PI * 43; // r=43 → ~270
+
+function startTimer(screenId){
+  const idx = screenId.replace('s','');
+  const ringEl = document.getElementById('ring'+idx);
+  const numEl  = document.getElementById('tnum'+idx);
+  if(!ringEl || !numEl) return;
+
+  if(activeTimers[screenId]) clearInterval(activeTimers[screenId]);
+
+  let secs = 60;
+  ringEl.style.stroke = 'var(--gold)';
+  numEl.style.color   = 'var(--gold)';
+
+  function tick(){
+    const offset = CIRCUMFERENCE * (1 - secs/60);
+    ringEl.style.strokeDashoffset = offset;
+    const m = Math.floor(secs/60);
+    const s = secs % 60;
+    numEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    if(secs <= 10){
+      ringEl.style.stroke = 'var(--red)';
+      numEl.style.color   = 'var(--red)';
+    }
+    if(secs <= 0){ clearInterval(activeTimers[screenId]); return; }
+    secs--;
+  }
+  tick();
+  activeTimers[screenId] = setInterval(tick, 1000);
+}
+
+// ── SCREEN 1: DRAG & DROP ──
+let dragId = null, dragText = '';
+const placed = {};
+
+function initDragDrop(){
+  const ghost = document.getElementById('ghost1');
+
+  document.querySelectorAll('#s1 .drag-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      dragId   = card.dataset.id;
+      dragText = card.dataset.text;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      ghost.textContent = dragText;
+      e.dataTransfer.setDragImage(document.createElement('div'),0,0);
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      ghost.style.opacity = '0';
+    });
+
+    // Touch
+    let gox=0,goy=0;
+    card.addEventListener('touchstart', e => {
+      dragId = card.dataset.id; dragText = card.dataset.text;
+      const t = e.touches[0];
+      const r = card.getBoundingClientRect();
+      gox = t.clientX-r.left; goy = t.clientY-r.top;
+      ghost.textContent = dragText;
+      ghost.style.width = r.width+'px';
+      ghost.style.opacity = '1';
+      ghost.style.left = (t.clientX-gox)+'px';
+      ghost.style.top  = (t.clientY-goy)+'px';
+      card.classList.add('dragging');
+    },{passive:true});
+    card.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const t = e.touches[0];
+      ghost.style.left = (t.clientX-gox)+'px';
+      ghost.style.top  = (t.clientY-goy)+'px';
+      ['zA1','zB1'].forEach(zid => {
+        const z = document.getElementById(zid);
+        const r = z.getBoundingClientRect();
+        z.classList.toggle('drag-over', t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);
+      });
+    },{passive:false});
+    card.addEventListener('touchend', e => {
+      ghost.style.opacity='0';
+      card.classList.remove('dragging');
+      const t = e.changedTouches[0];
+      ['zA1','zB1'].forEach(zid => {
+        const z = document.getElementById(zid);
+        const r = z.getBoundingClientRect();
+        z.classList.remove('drag-over');
+        if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
+          dropCard(dragId,dragText,zid==='zA1'?'A':'B');
+        }
+      });
+    });
+  });
+
+  document.addEventListener('dragover', e => {
+    e.preventDefault();
+    ghost.style.opacity='1';
+    ghost.style.left=(e.clientX+12)+'px';
+    ghost.style.top=(e.clientY+12)+'px';
+  });
+
+  ['A','B'].forEach(z => {
+    const zone = document.getElementById('z'+z+'1');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave',()=>{ zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      if(dragId) dropCard(dragId,dragText,z);
+    });
+  });
+}
+
+function dropCard(id, text, zone){
+  if(placed[id]){
+    const prev = document.getElementById('z'+placed[id]+'1');
+    const ex = prev.querySelector(`[data-card-id="${id}"]`);
+    if(ex) ex.remove();
+  }
+  const orig = document.querySelector(`#s1 .drag-card[data-id="${id}"]`);
+  if(orig) orig.classList.add('placed');
+  placed[id] = zone;
+
+  const zoneEl = document.getElementById('z'+zone+'1');
+  const el = document.createElement('div');
+  el.className = 'zone-card';
+  el.dataset.cardId = id;
+  el.innerHTML = `<span>${text}</span><button class="zone-card-rm" data-id="${id}" data-zone="${zone}">✕</button>`;
+  zoneEl.appendChild(el);
+  el.querySelector('.zone-card-rm').addEventListener('click', function(){
+    removeCard(this.dataset.id, this.dataset.zone);
+  });
+
+  updateHints(); checkConfirm1();
+  dragId = null;
+}
+
+function removeCard(id, zone){
+  const orig = document.querySelector(`#s1 .drag-card[data-id="${id}"]`);
+  if(orig) orig.classList.remove('placed');
+  const el = document.querySelector(`#z${zone}1 [data-card-id="${id}"]`);
+  if(el) el.remove();
+  delete placed[id];
+  updateHints(); checkConfirm1();
+}
+
+function updateHints(){
+  ['A','B'].forEach(z => {
+    const zone = document.getElementById('z'+z+'1');
+    const hint = document.getElementById('h'+z+'1');
+    hint.style.display = zone.querySelectorAll('.zone-card').length ? 'none' : 'block';
+  });
+}
+
+function checkConfirm1(){
+  document.getElementById('confirmBtn1').disabled = Object.keys(placed).length < 6;
+}
+
+// ── SCREEN 2: SINGLE ANSWER ──
+function selectAnswer(card, screenId){
+  const col = card.closest('.answers-col');
+  const alreadyRevealed = col.querySelector('.correct');
+  if(alreadyRevealed) return;
+
+  col.querySelectorAll('.ans-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+
+  const confirmBtn = document.getElementById('confirmBtn2');
+  if(confirmBtn) confirmBtn.disabled = false;
+}
+
+// ── SCREEN 3: DRAG SEQUENCE ──
+function initSeq(){
+  const list = document.getElementById('seqList');
+  if(!list) return;
+  let dragEl=null, overEl=null;
+
+  list.querySelectorAll('.seq-item').forEach(item => {
+    item.addEventListener('dragstart', () => { dragEl=item; item.classList.add('seq-dragging'); });
+    item.addEventListener('dragend',   () => { dragEl=null; item.classList.remove('seq-dragging'); list.querySelectorAll('.seq-item').forEach(i=>i.classList.remove('seq-over')); });
+    item.addEventListener('dragover',  e  => { e.preventDefault(); if(dragEl&&dragEl!==item){ item.classList.add('seq-over'); overEl=item; }});
+    item.addEventListener('dragleave', ()  => item.classList.remove('seq-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault(); item.classList.remove('seq-over');
+      if(dragEl && dragEl!==item){
+        const items=[...list.querySelectorAll('.seq-item')];
+        const fromIdx=items.indexOf(dragEl), toIdx=items.indexOf(item);
+        if(fromIdx<toIdx) list.insertBefore(dragEl,item.nextSibling);
+        else list.insertBefore(dragEl,item);
+        updateSeqNums();
+      }
+    });
+
+    // Touch
+    let startY=0;
+    item.addEventListener('touchstart',e=>{ dragEl=item; item.classList.add('seq-dragging'); startY=e.touches[0].clientY; },{passive:true});
+    item.addEventListener('touchmove',e=>{
+      e.preventDefault();
+      const y=e.touches[0].clientY;
+      const items=[...list.querySelectorAll('.seq-item')];
+      items.forEach(i=>i.classList.remove('seq-over'));
+      const target=document.elementFromPoint(e.touches[0].clientX,y);
+      const targetItem=target?.closest('.seq-item');
+      if(targetItem&&targetItem!==dragEl){ targetItem.classList.add('seq-over'); overEl=targetItem; }
+    },{passive:false});
+    item.addEventListener('touchend',()=>{
+      item.classList.remove('seq-dragging');
+      if(overEl&&overEl!==item){
+        const items=[...list.querySelectorAll('.seq-item')];
+        const fromIdx=items.indexOf(item), toIdx=items.indexOf(overEl);
+        if(fromIdx<toIdx) list.insertBefore(item,overEl.nextSibling);
+        else list.insertBefore(item,overEl);
+        updateSeqNums(); overEl=null;
+      }
+      list.querySelectorAll('.seq-item').forEach(i=>i.classList.remove('seq-over'));
+    });
+  });
+}
+
+function updateSeqNums(){
+  document.querySelectorAll('#seqList .seq-item').forEach((item,i) => {
+    item.querySelector('.seq-num').textContent = i+1;
+  });
+}
+
+// ── SCREEN 4: REMOVE EXTRA ──
+let rmSelection = null;
+
+function toggleRemove(card){
+  const wasRemoved = card.classList.contains('removed');
+  // Only one can be removed at a time
+  document.querySelectorAll('#rmGrid .rm-card').forEach(c => c.classList.remove('removed'));
+  if(!wasRemoved){
+    card.classList.add('removed');
+    rmSelection = card;
+  } else {
+    rmSelection = null;
+  }
+  document.getElementById('confirmBtn4').disabled = !rmSelection;
+}
+
+// ── INIT ──
+initDragDrop();
+initSeq();
+</script>
+</body>
+</html>
