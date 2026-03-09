@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Викторина — Тип 1: Корзины</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Neuropol X'; font-style: italic;
+  src: url('./assets/fonts/NeuropolXCdRg-Italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Neuropol X'; font-style: normal;
+  src: url('./assets/fonts/NeuropolXCdRg-Regular.woff2') format('woff2');
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --cian:#00D1FF; --cian-7:rgba(0,209,255,.07); --cian-30:rgba(0,209,255,.3); --cian-60:rgba(0,209,255,.6);
+  --violet:#7B61FF; --violet-7:rgba(123,97,255,.07); --violet-30:rgba(123,97,255,.3); --violet-60:rgba(123,97,255,.6);
+  --accent-2:#A08BFF; --az-brand:#FFB600;
+  --white:#FFF; --white-5:rgba(255,255,255,.05); --white-10:rgba(255,255,255,.1);
+  --white-30:rgba(255,255,255,.3); --white-50:rgba(255,255,255,.5); --white-70:rgba(255,255,255,.7);
+  --bg-20:rgba(19,13,40,.2); --bg-40:rgba(19,13,40,.4);
+  --correct:#39D98A; --wrong:#FF5C7A;
+  --r8:8px; --r12:12px; --r16:16px; --r100:100px;
+}
+body { width:1080px; height:1920px; overflow:hidden;
+  background:radial-gradient(ellipse at 50% 50%,#0B1020 0%,#060914 100%);
+  font-family:'Montserrat',sans-serif; color:#fff; position:relative; }
+.bg-blobs { position:absolute; inset:0;
+  background-image:url('./assets/images/bg-colors-blured-min.png');
+  background-size:cover; background-position:center; opacity:.8; z-index:0; }
+.bg-streaks { position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+.streak { position:absolute; border-radius:999px; filter:blur(165px); }
+.streak-1 { width:2845px; height:329px; background:linear-gradient(90deg,transparent 0%,#00D1FF 40%,transparent 100%);
+  opacity:.25; top:165px; left:-246px; transform:rotate(-5deg); }
+.streak-2 { width:3083px; height:412px; background:linear-gradient(90deg,transparent 0%,#7B61FF 45%,transparent 100%);
+  opacity:.30; top:592px; left:-364px; transform:rotate(3deg); }
+.streak-3 { width:2964px; height:362px; background:linear-gradient(90deg,transparent 0%,#FF3DCC 35%,#7B61FF 70%,transparent 100%);
+  opacity:.28; top:1004px; left:-195px; transform:rotate(-2deg); }
+.screen { position:relative; z-index:10; width:1080px; height:1920px; display:flex; flex-direction:column; }
+
+/* HEADER */
+.header { display:flex; align-items:baseline; justify-content:space-between;
+  min-height:64px; padding:24px 56px; flex-shrink:0; }
+.az-logo { display:flex; align-items:flex-end; }
+.az-letters { width:107px; height:14px; object-fit:contain; object-position:bottom; }
+.az-symbol { width:26px; height:32px; object-fit:contain; object-position:bottom; }
+.header-right { display:flex; align-items:center; gap:24px; }
+.pro-logo { position:relative; width:89px; height:26px; }
+.pro-logo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+.persp-logo { width:57px; height:67px; object-fit:contain; }
+
+/* MAIN */
+.main { flex:1; display:flex; flex-direction:column; gap:24px; padding:24px 0; min-height:0; }
+
+/* DASHBOARD */
+.dashboard { margin:0 56px; background:var(--bg-40); border:1px solid var(--violet);
+  border-radius:var(--r16); padding:24px;
+  display:flex; align-items:flex-start; justify-content:space-between; flex-shrink:0; }
+.dash-left { flex:1; display:flex; flex-direction:column; gap:4px; text-transform:uppercase; }
+.dash-level { font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:20px; letter-spacing:1px; color:var(--accent-2); }
+.dash-type { font-size:12px; font-weight:600; letter-spacing:.6px; color:var(--white-50); line-height:1.5; }
+.dash-center { flex:1; display:flex; flex-direction:column; align-items:center; }
+.timer-wrap { display:flex; align-items:center; justify-content:center;
+  width:164px; height:164px; position:relative; flex-shrink:0; }
+.timer-svg { position:absolute; inset:0; transform:rotate(-90deg); }
+.ring-bg { fill:none; stroke:rgba(0,209,255,.12); stroke-width:6; }
+.ring-fill { fill:none; stroke:var(--cian); stroke-width:6; stroke-linecap:round;
+  stroke-dasharray:440; stroke-dashoffset:0;
+  filter:drop-shadow(0 0 8px rgba(0,209,255,.6)); transition:stroke-dashoffset 1s linear,stroke .4s; }
+.timer-num { font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:32px; letter-spacing:1.6px; color:var(--cian); text-align:center; text-transform:uppercase; }
+.timer-label { font-size:12px; font-weight:600; letter-spacing:.6px;
+  color:var(--white-50); text-transform:uppercase; margin-top:4px; text-align:center; }
+.prog-dots { display:flex; align-items:center; gap:8px; justify-content:center; padding:10px; margin-top:4px; }
+.dot { border-radius:100px; background:var(--cian-30); border:1px solid var(--cian);
+  box-shadow:0 0 4px var(--cian); width:10px; height:10px; flex-shrink:0; transition:all .3s; }
+.dot.active { width:30px; background:var(--cian); box-shadow:0 0 4px var(--cian-30); border:none; }
+.dot.empty { background:var(--white-10); border:none; box-shadow:none; }
+.dot.done { background:var(--correct); border-color:var(--correct); box-shadow:0 0 4px var(--correct); }
+.dash-right { flex:1; display:flex; flex-direction:column;
+  align-items:flex-end; justify-content:space-between; align-self:stretch; }
+.type-badge { display:flex; align-items:center; gap:8px; padding:8px 16px;
+  border-radius:var(--r100); border:1.5px solid; width:180px;
+  font-size:12px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; white-space:nowrap; }
+.type-badge img { width:24px; height:24px; object-fit:contain; flex-shrink:0; }
+.type-badge.active { background:var(--cian-7); border-color:var(--cian-60); color:var(--cian); box-shadow:0 0 20px rgba(0,209,255,.15); }
+.type-badge.inactive { background:var(--white-5); border-color:var(--white-10); color:var(--white-30); }
+
+/* PLAYER */
+.player-section { margin:0 56px; display:flex; flex-direction:column; gap:20px; flex-shrink:0; }
+.q-label { display:flex; align-items:baseline; gap:16px; }
+.q-num-badge { background:var(--cian-7); border:1.5px solid var(--cian-30); border-radius:var(--r8);
+  padding:8px 16px; font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:16px; letter-spacing:.8px; text-transform:uppercase; color:var(--cian); flex-shrink:0; }
+.q-counter { font-size:13px; font-weight:500; color:var(--white-30); }
+.q-hint { font-size:14px; font-weight:400; color:var(--white-50); white-space:nowrap; }
+.q-hint .h-cian { color:var(--cian); }
+.q-hint .h-violet { color:var(--accent-2); }
+.q-text { font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:24px; letter-spacing:1.2px; text-transform:uppercase; color:#fff; line-height:1.2; }
+
+/* POOL */
+.answers-pool { display:flex; flex-direction:column; gap:12px; }
+.answer-card { background:var(--bg-20); border:1px solid var(--white-10); border-radius:var(--r12);
+  padding:14px 20px; min-height:54px; display:flex; align-items:center; gap:14px;
+  cursor:grab; user-select:none; transition:all .2s; }
+.answer-card:hover { border-color:rgba(0,209,255,.3); transform:translateX(3px); }
+.answer-card.dragging { opacity:.25; transform:scale(.98); }
+.answer-card.placed { display:none; }
+.drag-icon { width:15px; height:11px; object-fit:contain; flex-shrink:0; opacity:.5; }
+.answer-text { font-size:16px; font-weight:600; line-height:1.4; color:#fff; flex:1; }
+
+/* BAGS */
+.bags { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.bag { border-radius:var(--r16); border:2px dashed; padding:24px;
+  display:flex; flex-direction:column; gap:10px;
+  position:relative; min-height:180px; transition:all .25s; }
+.bag-a { background:var(--cian-7); border-color:var(--cian-60); }
+.bag-b { background:var(--violet-7); border-color:var(--violet-60); }
+.bag.drag-over.bag-a { background:rgba(0,209,255,.14); border-color:var(--cian); box-shadow:0 0 32px rgba(0,209,255,.2); transform:scale(1.02); }
+.bag.drag-over.bag-b { background:rgba(123,97,255,.16); border-color:var(--violet); box-shadow:0 0 32px rgba(123,97,255,.2); transform:scale(1.02); }
+.bag-header { display:flex; align-items:baseline; gap:14px; width:100%; }
+.bag-letter { border:1.5px solid; border-radius:var(--r8); padding:8px 14px; min-width:38px;
+  font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:16px; letter-spacing:.8px; text-transform:uppercase; flex-shrink:0; }
+.bag-a .bag-letter { background:var(--cian-7); border-color:var(--cian-30); color:var(--cian); }
+.bag-b .bag-letter { background:var(--violet-7); border-color:var(--violet-30); color:var(--accent-2); }
+.bag-title { font-size:13px; font-weight:700; line-height:1.4; flex:1; padding-right:30px; }
+.bag-a .bag-title { color:var(--cian); }
+.bag-b .bag-title { color:var(--accent-2); }
+.bag-inbox-icon { position:absolute; top:22px; right:22px; width:24px; height:24px; object-fit:contain; opacity:.6; }
+.bag-empty { font-size:13px; color:var(--white-30); text-align:center; padding:10px 0; }
+.bag-items { display:flex; flex-direction:column; gap:10px; }
+.bag-item { border-radius:var(--r12); padding:12px 18px;
+  display:flex; align-items:center; gap:12px;
+  font-size:15px; font-weight:600; line-height:1.4; color:#fff;
+  animation:dropIn .3s cubic-bezier(.34,1.56,.64,1) both; }
+.bag-a .bag-item { background:var(--cian-7); border:1px solid var(--cian); }
+.bag-b .bag-item { background:var(--violet-7); border:1px solid var(--violet); }
+.bag-item.correct { background:rgba(57,217,138,.12)!important; border-color:var(--correct)!important; }
+.bag-item.wrong   { background:rgba(255,92,122,.12)!important; border-color:var(--wrong)!important; }
+@keyframes dropIn { from{opacity:0;transform:scale(.85) translateY(6px)} to{opacity:1;transform:scale(1)} }
+.bag-item-rm { margin-left:auto; width:20px; height:20px; border-radius:50%;
+  background:rgba(255,255,255,.07); border:none; cursor:pointer;
+  color:var(--white-30); font-size:11px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:all .2s; }
+.bag-item-rm:hover { background:rgba(255,92,122,.25); color:#FF5C7A; }
+
+/* SCORE */
+.score-bar { display:none; align-items:center; justify-content:center; gap:10px;
+  padding:12px 24px; border-radius:var(--r12);
+  font-size:15px; font-weight:700; animation:fadeUp .3s ease both; }
+.score-bar.show { display:flex; }
+.score-bar.all-correct { background:rgba(57,217,138,.12); border:1px solid var(--correct); color:var(--correct); }
+.score-bar.partial    { background:rgba(255,183,0,.1);  border:1px solid #FFB600; color:#FFB600; }
+.score-bar.all-wrong  { background:rgba(255,92,122,.1); border:1px solid var(--wrong);   color:var(--wrong); }
+
+/* GHOST */
+.ghost-card { position:fixed; pointer-events:none; z-index:9999;
+  background:rgba(0,209,255,.15); border:1.5px solid var(--cian);
+  border-radius:12px; padding:10px 18px;
+  font-size:15px; font-weight:600; color:#fff;
+  box-shadow:0 12px 36px rgba(0,209,255,.35);
+  max-width:400px; opacity:0; transition:opacity .1s; backdrop-filter:blur(10px); }
+
+/* CTA */
+.cta-row { display:flex; align-items:center; justify-content:flex-end; gap:16px; }
+.btn-next { background:var(--white-10); border:none; border-radius:var(--r8);
+  padding:12px 28px; cursor:pointer; font-family:'Neuropol X',sans-serif;
+  font-size:20px; letter-spacing:1px; text-transform:uppercase; color:var(--white-30); transition:all .2s; }
+.btn-next.enabled { background:linear-gradient(135deg,#00D1FF 0%,#7B61FF 100%);
+  color:rgba(255,255,255,.9); box-shadow:0 6px 24px rgba(0,209,255,.3); }
+.btn-next.enabled:hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(0,209,255,.45); }
+
+/* FOOTER */
+.footer { display:flex; align-items:flex-end; justify-content:center;
+  padding:16px 48px 24px; flex-shrink:0; }
+.footer-btns { display:flex; gap:24px; align-items:center; }
+.btn-sec { display:flex; align-items:center; gap:4px; padding:8px 16px; border-radius:99px;
+  border:1px solid rgba(0,209,255,.4); background:transparent; cursor:pointer;
+  color:var(--white-70); font-family:'Montserrat',sans-serif; font-weight:500; font-size:18px;
+  box-shadow:0 0 20px rgba(123,97,255,.4); transition:all .2s; }
+.btn-sec:hover { border-color:rgba(0,209,255,.7); color:#fff; }
+.btn-sec img { width:24px; height:24px; object-fit:contain; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.fu0{animation:fadeUp .4s .0s both ease} .fu1{animation:fadeUp .4s .1s both ease}
+.fu2{animation:fadeUp .4s .2s both ease} .fu3{animation:fadeUp .4s .3s both ease}
+.fu4{animation:fadeUp .4s .4s both ease} .fu5{animation:fadeUp .4s .5s both ease}
+</style>
+</head>
+<body>
+
+<div class="bg-blobs"></div>
+<div class="bg-streaks">
+  <div class="streak streak-1"></div>
+  <div class="streak streak-2"></div>
+  <div class="streak streak-3"></div>
+</div>
+<div class="ghost-card" id="ghost"></div>
+
+<div class="screen">
+
+  <header class="header fu0">
+    <div class="az-logo">
+      <img class="az-letters" src="https://www.figma.com/api/mcp/asset/e0829721-85bf-4008-9628-650803836018" alt="AstraZeneca">
+      <img class="az-symbol"  src="https://www.figma.com/api/mcp/asset/6ec8232d-fd68-4ff8-925a-60afdf10b815" alt="">
+    </div>
+    <div class="header-right">
+      <div class="pro-logo">
+        <img src="https://www.figma.com/api/mcp/asset/fca01be6-70d7-414c-af04-db5c44eb4ea4" alt="">
+        <img src="https://www.figma.com/api/mcp/asset/acbd8f2d-1097-4d46-89c2-c6de3c934048" alt="PRO">
+      </div>
+      <img class="persp-logo" src="https://www.figma.com/api/mcp/asset/1c248aab-f903-46d4-ba04-4ded22feb92a" alt="Перспектива">
+    </div>
+  </header>
+
+  <main class="main">
+
+    <div class="dashboard fu1">
+      <div class="dash-left">
+        <div class="dash-level">Уровень №1</div>
+        <div class="dash-type">Распределение по корзинам</div>
+      </div>
+      <div class="dash-center">
+        <div class="timer-wrap">
+          <svg class="timer-svg" viewBox="0 0 164 164">
+            <circle class="ring-bg"   cx="82" cy="82" r="70"/>
+            <circle class="ring-fill" id="ringFill" cx="82" cy="82" r="70"/>
+          </svg>
+          <div class="timer-num" id="timerNum">1:00</div>
+        </div>
+        <div class="timer-label">Осталось</div>
+        <div class="prog-dots" id="progDots"></div>
+      </div>
+      <div class="dash-right">
+        <div class="type-badge active">
+          <img src="https://www.figma.com/api/mcp/asset/f3b3c0a8-dbb8-4ff9-8ff7-d8cc7b8b7888" alt=""> Распределить
+        </div>
+        <div class="type-badge inactive">
+          <img src="https://www.figma.com/api/mcp/asset/2d6d871e-2c71-4418-a09d-8d8a2cc9d25c" alt=""> Упорядочить
+        </div>
+        <div class="type-badge inactive">
+          <img src="https://www.figma.com/api/mcp/asset/fe8bb219-2cc9-47ea-a800-75b9c3280f7c" alt=""> Выбрать
+        </div>
+        <div class="type-badge inactive">
+          <img src="https://www.figma.com/api/mcp/asset/5f706136-1056-4e07-912a-fb185fc30c28" alt=""> Убрать
+        </div>
+      </div>
+    </div>
+
+    <div class="player-section fu2">
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="q-label">
+          <div class="q-num-badge" id="qNum">№ 1</div>
+          <div class="q-hint">Перетаскивайте в корзину <span class="h-cian">А</span> или <span class="h-violet">Б</span></div>
+          <div class="q-counter" id="qCounter"></div>
+        </div>
+        <div class="q-text" id="qText"></div>
+      </div>
+      <div class="answers-pool" id="pool"></div>
+      <div class="bags" id="bagsEl"></div>
+      <div class="score-bar" id="scoreBar"></div>
+      <div class="cta-row fu4">
+        <button class="btn-next" id="btnNext">ДАЛЕЕ</button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer fu5">
+    <div class="footer-btns">
+      <button class="btn-sec"><img src="https://www.figma.com/api/mcp/asset/ad87c546-a62d-4979-879b-8749a265f4e6" alt=""> Источники</button>
+      <button class="btn-sec"><img src="https://www.figma.com/api/mcp/asset/2fc0d238-db35-45ce-ac42-07e315aa8478" alt=""> Аббревиатуры</button>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    num:1, text:"Диагностика I–II vs III–IV стадии НМРЛ",
+    bagA:"Диагностика I–II стадии НМРЛ", bagB:"Диагностика III–IV стадии НМРЛ",
+    cards:[
+      {id:"c1",text:"КТ органов грудной клетки с контрастированием",answer:"A"},
+      {id:"c2",text:"Функция внешнего дыхания / объём ФВД за 1 сек",answer:"A"},
+      {id:"c3",text:"Экспрессия PD-L1",answer:"B"},
+      {id:"c4",text:"МРТ головного мозга",answer:"B"},
+      {id:"c5",text:"ПЭТ-КТ",answer:"B"},
+      {id:"c6",text:"Биопсия опухоли",answer:"B"}
+    ]
+  },
+  {
+    num:2, text:"Биомаркеры для II–III стадии НМРЛ",
+    bagA:"Обязательные биомаркеры", bagB:"Возможные биомаркеры",
+    cards:[
+      {id:"c1",text:"Мутация EGFR [делеция 19 экз / L858R в 21 экз]",answer:"A"},
+      {id:"c2",text:"Транслокация ALK",answer:"A"},
+      {id:"c3",text:"Транслокация ROS1",answer:"A"},
+      {id:"c4",text:"Экспрессия PD-L1",answer:"A"},
+      {id:"c5",text:"Мутация BRAF V600E",answer:"B"},
+      {id:"c6",text:"Транслокация RET",answer:"B"},
+      {id:"c7",text:"Мутация KRAS",answer:"B"}
+    ]
+  },
+  {
+    num:3, text:"Неоадъювантная vs адъювантная терапия НМРЛ",
+    bagA:"Неоадъювантная терапия IIIA N2", bagB:"Адъювантная терапия после операции II ст.",
+    cards:[
+      {id:"c1",text:"Ниволумаб + химиотерапия (3 цикла)",answer:"A"},
+      {id:"c2",text:"Осимертиниб (при EGFRm)",answer:"B"},
+      {id:"c3",text:"Пембролизумаб + химиотерапия",answer:"A"},
+      {id:"c4",text:"Атезолизумаб (при PD-L1≥50%)",answer:"B"}
+    ]
+  },
+  {
+    num:4, text:"ХЛТ при III стадии НМРЛ",
+    bagA:"ХЛТ при III стадии [ECOG 0–1]", bagB:"ХЛТ при III стадии [ECOG 2]",
+    cards:[
+      {id:"c1",text:"Одновременная химиотерапия (цисплатин + этопозид)",answer:"A"},
+      {id:"c2",text:"Паклитаксел + карбоплатин",answer:"A"},
+      {id:"c3",text:"Лучевая терапия в 60 Грей",answer:"B"},
+      {id:"c4",text:"Дурвалумаб",answer:"A"}
+    ]
+  },
+  {
+    num:6, text:"Терапия после лечения неоперабельного НМРЛ",
+    bagA:"Поддерживающая иммунотерапия после ХЛТ", bagB:"Адъювантная терапия после хирургии",
+    cards:[
+      {id:"c1",text:"Дурвалумаб (на 1 год)",answer:"A"},
+      {id:"c2",text:"Осимертиниб при EGFRm (на 3 года)",answer:"B"},
+      {id:"c3",text:"Атезолизумаб при PD-L1≥50% (на 1 год)",answer:"B"}
+    ]
+  },
+  {
+    num:7, text:"Диагностика при I vs IV стадии НМРЛ",
+    bagA:"Обследования при I стадии НМРЛ", bagB:"Обследования при IV стадии НМРЛ",
+    cards:[
+      {id:"c1",text:"Рентгенография органов грудной клетки",answer:"A"},
+      {id:"c2",text:"УЗИ брюшной полости",answer:"B"},
+      {id:"c3",text:"МРТ головного мозга",answer:"B"},
+      {id:"c4",text:"ПЭТ-КТ метастазов",answer:"B"}
+    ]
+  },
+  {
+    num:8, text:"Режимы химиотерапии при НМРЛ",
+    bagA:"Плоскоклеточный НМРЛ", bagB:"Неплоскоклеточный НМРЛ",
+    cards:[
+      {id:"c1",text:"Цисплатин + гемцитабин",answer:"A"},
+      {id:"c2",text:"Пеметрексед + цисплатин",answer:"B"},
+      {id:"c3",text:"Паклитаксел + карбоплатин",answer:"B"}
+    ]
+  },
+  {
+    num:9, text:"Показания для EGFRm vs EGFRwt НМРЛ",
+    bagA:"Зарегистрированные показания для EGFRm", bagB:"Зарегистрированные показания для EGFRwt",
+    cards:[
+      {id:"c1",text:"Датопотамаб дерукстекан (после ИТК EGFR и пХТ)",answer:"A"},
+      {id:"c2",text:"Осимертиниб в адъювантном режиме",answer:"A"},
+      {id:"c3",text:"Дурвалумаб при III стадии после ХЛТ",answer:"B"},
+      {id:"c4",text:"Осимертиниб при III стадии после ХЛТ",answer:"A"}
+    ]
+  },
+  {
+    num:10, text:"Противопоказания и показания к ХЛТ",
+    bagA:"Противопоказания к ХЛТ", bagB:"Показания к ХЛТ",
+    cards:[
+      {id:"c1",text:"ECOG 2",answer:"A"},
+      {id:"c2",text:"Инвазия сосудов",answer:"A"},
+      {id:"c3",text:"Распад опухоли",answer:"A"},
+      {id:"c4",text:"ECOG 0–1",answer:"B"},
+      {id:"c5",text:"Неоперабельный НМРЛ III стадии",answer:"B"}
+    ]
+  }
+];
+
+const TOTAL = QUESTIONS.length;
+const ICON_DRAG  = "https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3";
+const ICON_BAG_A = "https://www.figma.com/api/mcp/asset/385460d6-e6e4-4bab-bdf6-b9e76a5cf729";
+const ICON_BAG_B = "https://www.figma.com/api/mcp/asset/17f07b5e-9c28-4e92-8d9d-fdc7463b4a12";
+
+let currentQ = 0, placed = {}, checked = false, dragId = null, dragText = '';
+
+// ── TIMER ──
+const CIRC = 2 * Math.PI * 70;
+const ringEl = document.getElementById('ringFill');
+const numEl  = document.getElementById('timerNum');
+ringEl.style.strokeDasharray = CIRC;
+let secs = 60, timerInterval;
+
+function startTimer() {
+  clearInterval(timerInterval);
+  secs = 60;
+  ringEl.style.stroke = 'var(--cian)';
+  numEl.style.color = 'var(--cian)';
+  tickTimer();
+  timerInterval = setInterval(tickTimer, 1000);
+}
+function tickTimer() {
+  ringEl.style.strokeDashoffset = CIRC * (1 - secs / 60);
+  const m = Math.floor(secs / 60), s = secs % 60;
+  numEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  if (secs <= 10) { ringEl.style.stroke = '#FF5C7A'; numEl.style.color = '#FF5C7A'; }
+  if (secs <= 0) { clearInterval(timerInterval); return; }
+  secs--;
+}
+
+// ── DOTS ──
+function renderDots() {
+  const el = document.getElementById('progDots');
+  el.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = i < currentQ ? 'dot done' : i === currentQ ? 'dot active' : 'dot empty';
+    el.appendChild(d);
+  }
+}
+
+// ── RENDER QUESTION ──
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  placed = {}; checked = false;
+
+  document.getElementById('qNum').textContent = `№ ${q.num}`;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('qCounter').textContent = `${idx + 1} / ${TOTAL}`;
+
+  // Pool
+  const pool = document.getElementById('pool');
+  pool.innerHTML = '';
+  q.cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'answer-card';
+    el.draggable = true;
+    el.dataset.id = card.id;
+    el.dataset.text = card.text;
+    el.innerHTML = `<img class="drag-icon" src="${ICON_DRAG}" alt=""><span class="answer-text">${card.text}</span>`;
+    pool.appendChild(el);
+  });
+
+  // Bags
+  document.getElementById('bagsEl').innerHTML = `
+    <div class="bag bag-a" id="bagA">
+      <div class="bag-header">
+        <div class="bag-letter">А</div>
+        <div class="bag-title">${q.bagA}</div>
+      </div>
+      <img class="bag-inbox-icon" src="${ICON_BAG_A}" alt="">
+      <div class="bag-empty" id="emptyA">Перетащите сюда</div>
+      <div class="bag-items" id="itemsA"></div>
+    </div>
+    <div class="bag bag-b" id="bagB">
+      <div class="bag-header">
+        <div class="bag-letter">Б</div>
+        <div class="bag-title">${q.bagB}</div>
+      </div>
+      <img class="bag-inbox-icon" src="${ICON_BAG_B}" alt="">
+      <div class="bag-empty" id="emptyB">Перетащите сюда</div>
+      <div class="bag-items" id="itemsB"></div>
+    </div>`;
+
+  // Score + button
+  const sb = document.getElementById('scoreBar');
+  sb.className = 'score-bar'; sb.innerHTML = '';
+  const btn = document.getElementById('btnNext');
+  btn.className = 'btn-next'; btn.textContent = 'ДАЛЕЕ';
+
+  bindDrag();
+  bindBags();
+  renderDots();
+  startTimer();
+}
+
+// ── DRAG (mouse) ──
+const ghost = document.getElementById('ghost');
+document.addEventListener('dragover', e => {
+  e.preventDefault();
+  ghost.style.opacity = '1';
+  ghost.style.left = (e.clientX + 14) + 'px';
+  ghost.style.top  = (e.clientY + 14) + 'px';
+});
+
+function bindDrag() {
+  document.querySelectorAll('.answer-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      if (checked) { e.preventDefault(); return; }
+      dragId = card.dataset.id; dragText = card.dataset.text;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
+      ghost.textContent = dragText;
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging'); ghost.style.opacity = '0';
+    });
+
+    // Touch
+    let gox = 0, goy = 0;
+    card.addEventListener('touchstart', e => {
+      if (checked) return;
+      dragId = card.dataset.id; dragText = card.dataset.text;
+      const t = e.touches[0], r = card.getBoundingClientRect();
+      gox = t.clientX - r.left; goy = t.clientY - r.top;
+      ghost.textContent = dragText;
+      ghost.style.width = r.width + 'px';
+      ghost.style.opacity = '1';
+      ghost.style.left = (t.clientX - gox) + 'px';
+      ghost.style.top  = (t.clientY - goy) + 'px';
+      card.classList.add('dragging');
+    }, {passive: true});
+    card.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const t = e.touches[0];
+      ghost.style.left = (t.clientX - gox) + 'px';
+      ghost.style.top  = (t.clientY - goy) + 'px';
+      ['bagA','bagB'].forEach(bid => {
+        const b = document.getElementById(bid);
+        if (!b) return;
+        const r = b.getBoundingClientRect();
+        b.classList.toggle('drag-over',
+          t.clientX >= r.left && t.clientX <= r.right &&
+          t.clientY >= r.top  && t.clientY <= r.bottom);
+      });
+    }, {passive: false});
+    card.addEventListener('touchend', e => {
+      ghost.style.opacity = '0'; card.classList.remove('dragging');
+      const t = e.changedTouches[0];
+      ['bagA','bagB'].forEach(bid => {
+        const b = document.getElementById(bid);
+        if (!b) return;
+        const r = b.getBoundingClientRect();
+        b.classList.remove('drag-over');
+        if (t.clientX >= r.left && t.clientX <= r.right &&
+            t.clientY >= r.top  && t.clientY <= r.bottom)
+          dropCard(dragId, dragText, bid === 'bagA' ? 'A' : 'B');
+      });
+    });
+  });
+}
+
+function bindBags() {
+  ['bagA','bagB'].forEach(bid => {
+    const bag = document.getElementById(bid);
+    bag.addEventListener('dragover',  e => { e.preventDefault(); bag.classList.add('drag-over'); });
+    bag.addEventListener('dragleave', ()  => bag.classList.remove('drag-over'));
+    bag.addEventListener('drop', e => {
+      e.preventDefault(); bag.classList.remove('drag-over');
+      if (dragId && !checked) dropCard(dragId, dragText, bid === 'bagA' ? 'A' : 'B');
+    });
+  });
+}
+
+// ── DROP / REMOVE ──
+function dropCard(id, text, zone) {
+  if (!id || checked) return;
+  if (placed[id]) {
+    document.querySelector(`#items${placed[id]} [data-card-id="${id}"]`)?.remove();
+  }
+  document.querySelector(`.answer-card[data-id="${id}"]`)?.classList.add('placed');
+  placed[id] = zone;
+  const el = document.createElement('div');
+  el.className = 'bag-item';
+  el.dataset.cardId = id;
+  el.innerHTML = `<img class="drag-icon" src="${ICON_DRAG}" alt=""><span style="flex:1">${text}</span><button class="bag-item-rm" data-id="${id}" data-zone="${zone}">✕</button>`;
+  document.getElementById('items' + zone).appendChild(el);
+  el.querySelector('.bag-item-rm').addEventListener('click', function() {
+    if (!checked) removeCard(this.dataset.id, this.dataset.zone);
+  });
+  updateHints(); checkBtn(); dragId = null;
+}
+
+function removeCard(id, zone) {
+  document.querySelector(`.answer-card[data-id="${id}"]`)?.classList.remove('placed');
+  document.querySelector(`#items${zone} [data-card-id="${id}"]`)?.remove();
+  delete placed[id];
+  updateHints(); checkBtn();
+}
+
+function updateHints() {
+  ['A','B'].forEach(z => {
+    const items = document.getElementById('items' + z);
+    const empty = document.getElementById('empty' + z);
+    if (items && empty) empty.style.display = items.children.length ? 'none' : 'block';
+  });
+}
+
+function checkBtn() {
+  const total = QUESTIONS[currentQ].cards.length;
+  document.getElementById('btnNext').classList.toggle('enabled', Object.keys(placed).length >= total);
+}
+
+// ── CHECK ──
+function checkAnswers() {
+  checked = true;
+  clearInterval(timerInterval);
+  const q = QUESTIONS[currentQ];
+  let correct = 0;
+  q.cards.forEach(card => {
+    const zone = placed[card.id];
+    if (!zone) return;
+    const item = document.querySelector(`#items${zone} [data-card-id="${card.id}"]`);
+    if (!item) return;
+    const ok = zone === card.answer;
+    if (ok) correct++;
+    item.classList.add(ok ? 'correct' : 'wrong');
+    item.querySelector('.bag-item-rm')?.remove();
+  });
+  const total = q.cards.length;
+  const pct = correct / total;
+  const sb = document.getElementById('scoreBar');
+  sb.className = 'score-bar show ' + (pct === 1 ? 'all-correct' : pct >= 0.5 ? 'partial' : 'all-wrong');
+  sb.textContent = pct === 1 ? `✓ Все верно! ${correct} из ${total}` : `${correct} из ${total} верно`;
+  const btn = document.getElementById('btnNext');
+  btn.className = 'btn-next enabled';
+  btn.textContent = currentQ < TOTAL - 1 ? 'СЛЕДУЮЩИЙ ВОПРОС' : 'ЗАВЕРШИТЬ';
+}
+
+// ── BUTTON ──
+document.getElementById('btnNext').addEventListener('click', () => {
+  if (!checked) {
+    if (Object.keys(placed).length >= QUESTIONS[currentQ].cards.length) checkAnswers();
+  } else {
+    if (currentQ < TOTAL - 1) { currentQ++; renderQuestion(currentQ); }
+    else finishGame();
+  }
+});
+
+function finishGame() {
+  clearInterval(timerInterval);
+  // TODO: переход к следующему типу вопросов
+  console.log('Тип 1 завершён');
+}
+
+renderQuestion(0);
+</script>
+</body>
+</html>

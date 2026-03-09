@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Викторина — Тип 1: Корзины</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+@font-face {
+  font-family: 'Neuropol X';
+  font-style: italic;
+  src: url('./assets/fonts/NeuropolXCdRg-Italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Neuropol X';
+  font-style: normal;
+  src: url('./assets/fonts/NeuropolXCdRg-Regular.woff2') format('woff2');
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --cian: #00D1FF;
+  --cian-7: rgba(0,209,255,0.07);
+  --cian-30: rgba(0,209,255,0.3);
+  --cian-60: rgba(0,209,255,0.6);
+  --violet: #7B61FF;
+  --violet-7: rgba(123,97,255,0.07);
+  --violet-30: rgba(123,97,255,0.3);
+  --violet-60: rgba(123,97,255,0.6);
+  --accent-2: #A08BFF;
+  --orange: #F0AB00;
+  --az-brand: #FFB600;
+  --white: #FFFFFF;
+  --white-5: rgba(255,255,255,0.05);
+  --white-10: rgba(255,255,255,0.1);
+  --white-30: rgba(255,255,255,0.3);
+  --white-50: rgba(255,255,255,0.5);
+  --white-70: rgba(255,255,255,0.7);
+  --white-85: rgba(255,255,255,0.85);
+  --bg-20: rgba(19,13,40,0.2);
+  --bg-40: rgba(19,13,40,0.4);
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-100: 100px;
+}
+
+body {
+  width: 1080px;
+  height: 1920px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 50%, #0B1020 0%, #060914 100%);
+  font-family: 'Montserrat', sans-serif;
+  color: var(--white);
+  position: relative;
+}
+
+/* BG */
+.bg-blobs {
+  position:absolute; inset:0;
+  background-image: url('./assets/images/bg-colors-blured-min.png');
+  background-size:cover; background-position:center;
+  opacity:0.8; z-index:0;
+}
+.bg-streaks {
+  position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none;
+}
+.streak {
+  position:absolute; border-radius:999px;
+  filter: blur(165px);
+}
+.streak-1 {
+  width:2845px; height:329px;
+  background: linear-gradient(90deg, transparent 0%, #00D1FF 40%, transparent 100%);
+  opacity:0.25; top:165px; left:-246px;
+  transform: rotate(-5deg);
+}
+.streak-2 {
+  width:3083px; height:412px;
+  background: linear-gradient(90deg, transparent 0%, #7B61FF 45%, transparent 100%);
+  opacity:0.30; top:592px; left:-364px;
+  transform: rotate(3deg);
+}
+.streak-3 {
+  width:2964px; height:362px;
+  background: linear-gradient(90deg, transparent 0%, #FF3DCC 35%, #7B61FF 70%, transparent 100%);
+  opacity:0.28; top:1004px; left:-195px;
+  transform: rotate(-2deg);
+}
+
+/* LAYOUT */
+.screen {
+  position:relative; z-index:10;
+  width:1080px; height:1920px;
+  display:flex; flex-direction:column;
+}
+
+/* HEADER */
+.header {
+  display:flex; align-items:baseline; justify-content:space-between;
+  min-height:64px; padding:24px 56px;
+  border-bottom:1px solid transparent;
+  flex-shrink:0;
+}
+.az-logo { display:flex; align-items:flex-end; gap:0; }
+.az-letters { width:107px; height:14px; object-fit:contain; object-position:bottom; }
+.az-symbol  { width:26px; height:32px; object-fit:contain; object-position:bottom; }
+.header-right { display:flex; align-items:center; gap:24px; }
+.pro-logo { position:relative; width:89px; height:26px; }
+.pro-logo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+.persp-logo { width:57px; height:67px; object-fit:contain; overflow:hidden; }
+
+/* MAIN */
+.main {
+  flex:1; display:flex; flex-direction:column;
+  gap:24px; padding:24px 0;
+  min-height:0;
+}
+
+/* ── DASHBOARD ── */
+.dashboard {
+  margin:0 56px;
+  background:var(--bg-40);
+  border:1px solid var(--violet);
+  border-radius:var(--radius-16);
+  padding:24px;
+  display:flex; align-items:flex-start; justify-content:space-between;
+  flex-shrink:0;
+}
+.dash-left {
+  flex:1; display:flex; flex-direction:column; gap:4px;
+  text-transform:uppercase;
+}
+.dash-level {
+  font-family:'Neuropol X', sans-serif; font-style:italic;
+  font-size:20px; letter-spacing:1px; color:var(--accent-2);
+}
+.dash-type {
+  font-size:12px; font-weight:600; letter-spacing:0.6px;
+  color:var(--white-50); line-height:1.5;
+}
+.dash-center {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+}
+.timer-wrap {
+  display:flex; align-items:center; justify-content:center;
+  width:164px; height:164px; position:relative; flex-shrink:0;
+}
+.timer-svg {
+  position:absolute; inset:0; transform:rotate(-90deg);
+}
+.ring-bg  { fill:none; stroke:rgba(0,209,255,0.12); stroke-width:6; }
+.ring-fill {
+  fill:none; stroke:var(--cian); stroke-width:6; stroke-linecap:round;
+  stroke-dasharray:440; stroke-dashoffset:0;
+  filter:drop-shadow(0 0 8px rgba(0,209,255,0.6));
+  transition:stroke-dashoffset 1s linear, stroke 0.4s;
+}
+.timer-num {
+  font-family:'Neuropol X', sans-serif; font-style:italic;
+  font-size:32px; letter-spacing:1.6px; color:var(--cian);
+  text-align:center; text-transform:uppercase;
+}
+.timer-label {
+  font-size:12px; font-weight:600; letter-spacing:0.6px;
+  color:var(--white-50); text-transform:uppercase; margin-top:4px;
+  text-align:center;
+}
+/* Progress dots */
+.prog-dots {
+  display:flex; align-items:center; gap:10px; justify-content:center;
+  padding:10px; margin-top:4px;
+}
+.dot {
+  border-radius:100px;
+  background:var(--cian-30);
+  border:1px solid var(--cian);
+  box-shadow:0 0 4px var(--cian);
+  width:10px; height:10px;
+  flex-shrink:0;
+}
+.dot.active {
+  width:30px; height:10px;
+  background:var(--cian);
+  box-shadow:0 0 4px var(--cian-30);
+  border:none;
+}
+.dot.empty {
+  background:var(--white-10);
+  border:none; box-shadow:none;
+}
+
+/* Level badges column */
+.dash-right {
+  flex:1; display:flex; flex-direction:column;
+  align-items:flex-end; justify-content:space-between;
+  align-self:stretch;
+}
+.type-badge {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 16px; border-radius:var(--radius-100);
+  border:1.5px solid; width:180px;
+  font-size:12px; font-weight:600; letter-spacing:0.6px;
+  text-transform:uppercase; white-space:nowrap;
+  transition:all 0.2s;
+}
+.type-badge img { width:24px; height:24px; object-fit:contain; flex-shrink:0; }
+.type-badge.active {
+  background:var(--cian-7); border-color:var(--cian-60); color:var(--cian);
+  box-shadow:0 0 20px rgba(0,209,255,0.15);
+}
+.type-badge.inactive {
+  background:var(--white-5); border-color:var(--white-10); color:var(--white-30);
+}
+
+/* ── PLAYER SECTION ── */
+.player-section {
+  margin:0 56px;
+  display:flex; flex-direction:column; gap:24px;
+  flex-shrink:0;
+}
+
+/* Question header */
+.q-label {
+  display:flex; align-items:baseline; gap:16px;
+}
+.q-num-badge {
+  background:var(--cian-7); border:1.5px solid var(--cian-30);
+  border-radius:var(--radius-8); padding:8px 16px;
+  font-family:'Neuropol X', sans-serif; font-style:italic;
+  font-size:16px; letter-spacing:0.8px; text-transform:uppercase;
+  color:var(--cian); flex-shrink:0;
+}
+.q-hint {
+  font-size:14px; font-weight:400; color:var(--white-50); white-space:nowrap;
+}
+.q-hint .h-cian { color:var(--cian); }
+.q-hint .h-violet { color:var(--accent-2); }
+.q-text {
+  font-family:'Neuropol X', sans-serif; font-style:italic;
+  font-size:26px; letter-spacing:1.3px; text-transform:uppercase;
+  color:var(--white); line-height:normal;
+}
+
+/* Answer cards pool */
+.answers-pool {
+  display:flex; flex-direction:column; gap:16px;
+}
+.answer-card {
+  background:var(--bg-20);
+  border:1px solid var(--white-10);
+  border-radius:var(--radius-12);
+  padding:16px 24px;
+  height:60px;
+  display:flex; align-items:center; gap:16px;
+  cursor:grab; user-select:none;
+  transition:all 0.2s;
+}
+.answer-card:hover {
+  border-color:rgba(0,209,255,0.3);
+  transform:translateX(3px);
+}
+.answer-card.dragging { opacity:0.25; transform:scale(0.98); }
+.answer-card.placed   { display:none; }
+.drag-icon { width:15px; height:11px; object-fit:contain; flex-shrink:0; opacity:0.5; }
+.answer-text {
+  font-size:18px; font-weight:600; line-height:28px;
+  color:var(--white); flex:1;
+}
+
+/* Bags zone */
+.bags {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:24px; height:352px;
+}
+.bag {
+  border-radius:var(--radius-16);
+  border:1px dashed;
+  padding:24px;
+  display:flex; flex-direction:column; gap:10px;
+  position:relative; min-height:200px;
+  transition:all 0.25s;
+}
+.bag-a {
+  background:var(--cian-7); border-color:var(--cian-60);
+}
+.bag-b {
+  background:var(--violet-7); border-color:var(--violet-60);
+}
+.bag.drag-over.bag-a {
+  background:rgba(0,209,255,0.14); border-color:var(--cian);
+  box-shadow:0 0 32px rgba(0,209,255,0.2); transform:scale(1.02);
+}
+.bag.drag-over.bag-b {
+  background:rgba(123,97,255,0.16); border-color:var(--violet);
+  box-shadow:0 0 32px rgba(123,97,255,0.2); transform:scale(1.02);
+}
+.bag-header {
+  display:flex; align-items:baseline; gap:16px; width:100%;
+}
+.bag-letter {
+  border:1.5px solid; border-radius:var(--radius-8);
+  padding:8px 16px; min-width:38px;
+  font-family:'Neuropol X', sans-serif; font-style:italic;
+  font-size:16px; letter-spacing:0.8px; text-transform:uppercase;
+  flex-shrink:0;
+}
+.bag-a .bag-letter { background:var(--cian-7); border-color:var(--cian-30); color:var(--cian); }
+.bag-b .bag-letter { background:var(--violet-7); border-color:var(--violet-30); color:var(--accent-2); }
+.bag-title {
+  font-size:14px; font-weight:700; line-height:24px; flex:1;
+}
+.bag-a .bag-title { color:var(--cian); }
+.bag-b .bag-title { color:var(--accent-2); }
+.bag-inbox-icon {
+  position:absolute; top:23px; right:23px;
+  width:24px; height:24px; object-fit:contain; opacity:0.5;
+}
+.bag-empty {
+  font-size:13px; color:var(--white-30); text-align:center; padding:12px 0;
+}
+.bag-items { display:flex; flex-direction:column; gap:10px; }
+.bag-item {
+  border-radius:var(--radius-12);
+  padding:16px 24px;
+  display:flex; align-items:center; gap:16px;
+  font-size:18px; font-weight:600; line-height:28px; color:var(--white);
+  animation:dropIn 0.3s cubic-bezier(.34,1.56,.64,1) both;
+}
+.bag-a .bag-item { background:var(--cian-7); border:1px solid var(--cian); }
+.bag-b .bag-item { background:var(--violet-7); border:1px solid var(--violet); }
+@keyframes dropIn { from{opacity:0;transform:scale(0.85) translateY(6px)} to{opacity:1;transform:scale(1)} }
+.bag-item-rm {
+  margin-left:auto; width:20px; height:20px; border-radius:50%;
+  background:rgba(255,255,255,0.07); border:none; cursor:pointer;
+  color:var(--white-30); font-size:11px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:all 0.2s;
+}
+.bag-item-rm:hover { background:rgba(255,92,122,0.25); color:#FF5C7A; }
+
+/* Ghost */
+.ghost-card {
+  position:fixed; pointer-events:none; z-index:9999;
+  background:rgba(0,209,255,0.15); border:1.5px solid var(--cian);
+  border-radius:12px; padding:12px 20px;
+  font-size:16px; font-weight:600; color:var(--white);
+  box-shadow:0 12px 36px rgba(0,209,255,0.35);
+  max-width:420px; opacity:0; transition:opacity 0.1s;
+  backdrop-filter:blur(10px);
+}
+
+/* CTA row */
+.cta-row {
+  display:flex; align-items:center; justify-content:flex-end;
+  gap:16px; padding-top:24px;
+}
+.btn-next {
+  background:var(--white-10);
+  border:none; border-radius:var(--radius-8);
+  padding:12px 24px; cursor:pointer;
+  font-family:'Neuropol X', sans-serif; font-size:20px;
+  letter-spacing:1px; text-transform:uppercase;
+  color:var(--white-30); transition:all 0.2s;
+}
+.btn-next.enabled {
+  background:linear-gradient(135deg, #00D1FF 0%, #7B61FF 100%);
+  color:rgba(255,255,255,0.9);
+  box-shadow:0 6px 24px rgba(0,209,255,0.3);
+}
+.btn-next.enabled:hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(0,209,255,0.45); }
+
+/* FOOTER */
+.footer {
+  display:flex; align-items:flex-end; justify-content:center;
+  padding:16px 48px 24px;
+  flex-shrink:0;
+}
+.footer-btns { display:flex; gap:24px; align-items:center; }
+.btn-sec {
+  display:flex; align-items:center; gap:4px;
+  padding:8px 16px; border-radius:99px;
+  border:1px solid rgba(0,209,255,0.4); background:transparent;
+  cursor:pointer; color:var(--white-70);
+  font-family:'Montserrat', sans-serif; font-weight:500; font-size:18px;
+  box-shadow:0 0 20px rgba(123,97,255,0.4); transition:all 0.2s;
+}
+.btn-sec:hover { border-color:rgba(0,209,255,0.7); color:var(--white); }
+.btn-sec img { width:24px; height:24px; object-fit:contain; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.fu0 { animation:fadeUp .4s .0s both ease; }
+.fu1 { animation:fadeUp .4s .1s both ease; }
+.fu2 { animation:fadeUp .4s .2s both ease; }
+.fu3 { animation:fadeUp .4s .3s both ease; }
+.fu4 { animation:fadeUp .4s .4s both ease; }
+.fu5 { animation:fadeUp .4s .5s both ease; }
+</style>
+</head>
+<body>
+
+<div class="bg-blobs"></div>
+<div class="bg-streaks">
+  <div class="streak streak-1"></div>
+  <div class="streak streak-2"></div>
+  <div class="streak streak-3"></div>
+</div>
+<div class="ghost-card" id="ghost"></div>
+
+<div class="screen">
+
+  <!-- HEADER -->
+  <header class="header fu0">
+    <div class="az-logo">
+      <img class="az-letters" src="https://www.figma.com/api/mcp/asset/e0829721-85bf-4008-9628-650803836018" alt="AstraZeneca">
+      <img class="az-symbol"  src="https://www.figma.com/api/mcp/asset/6ec8232d-fd68-4ff8-925a-60afdf10b815" alt="">
+    </div>
+    <div class="header-right">
+      <div class="pro-logo">
+        <img src="https://www.figma.com/api/mcp/asset/fca01be6-70d7-414c-af04-db5c44eb4ea4" alt="">
+        <img src="https://www.figma.com/api/mcp/asset/acbd8f2d-1097-4d46-89c2-c6de3c934048" alt="PRO">
+      </div>
+      <img class="persp-logo" src="https://www.figma.com/api/mcp/asset/1c248aab-f903-46d4-ba04-4ded22feb92a" alt="Перспектива">
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="dashboard fu1">
+
+      <!-- Left: level info -->
+      <div class="dash-left">
+        <div class="dash-level">Уровень №1</div>
+        <div class="dash-type">Распределение по корзинам</div>
+      </div>
+
+      <!-- Center: timer + dots -->
+      <div class="dash-center">
+        <div class="timer-wrap">
+          <svg class="timer-svg" viewBox="0 0 164 164">
+            <circle class="ring-bg"   cx="82" cy="82" r="70"/>
+            <circle class="ring-fill" id="ringFill" cx="82" cy="82" r="70"/>
+          </svg>
+          <div class="timer-num" id="timerNum">0:55</div>
+        </div>
+        <div class="timer-label">Осталось</div>
+        <div class="prog-dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot active"></div>
+          <div class="dot empty"></div>
+          <div class="dot empty"></div>
+          <div class="dot empty"></div>
+          <div class="dot empty"></div>
+        </div>
+      </div>
+
+      <!-- Right: type badges -->
+      <div class="dash-right">
+        <div class="type-badge active">
+          <img src="https://www.figma.com/api/mcp/asset/f3b3c0a8-dbb8-4ff9-8ff7-d8cc7b8b7888" alt=""> Распределить
+        </div>
+        <div class="type-badge inactive">
+          <img src="https://www.figma.com/api/mcp/asset/2d6d871e-2c71-4418-a09d-8d8a2cc9d25c" alt=""> Упорядочить
+        </div>
+        <div class="type-badge inactive">
+          <img src="https://www.figma.com/api/mcp/asset/fe8bb219-2cc9-47ea-a800-75b9c3280f7c" alt=""> Выбрать
+        </div>
+        <div class="type-badge inactive">
+          <img src="https://www.figma.com/api/mcp/asset/5f706136-1056-4e07-912a-fb185fc30c28" alt=""> Убрать
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PLAYER SECTION -->
+    <div class="player-section fu2">
+
+      <!-- Question header -->
+      <div style="display:flex;flex-direction:column;gap:32px">
+        <div class="q-label">
+          <div class="q-num-badge">№ 4</div>
+          <div class="q-hint">
+            Перетаскивайте варианты в корзину
+            <span class="h-cian">А</span> или <span class="h-violet">Б</span>
+          </div>
+        </div>
+        <div class="q-text">Диагностика I–II vs III–IV стадии НМРЛ</div>
+      </div>
+
+      <!-- Answer pool -->
+      <div class="answers-pool" id="pool">
+        <div class="answer-card" draggable="true" data-id="c1" data-text="КТ органов грудной клетки с контрастированием">
+          <img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">
+          <span class="answer-text">КТ органов грудной клетки с контрастированием</span>
+        </div>
+        <div class="answer-card" draggable="true" data-id="c2" data-text="Функция внешнего дыхания / объём форсированного выдоха за 1 секунду">
+          <img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">
+          <span class="answer-text">Функция внешнего дыхания / объём форсированного выдоха за 1 секунду</span>
+        </div>
+        <div class="answer-card" draggable="true" data-id="c3" data-text="Экспрессия PD-L1">
+          <img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">
+          <span class="answer-text">Экспрессия PD-L1</span>
+        </div>
+        <div class="answer-card" draggable="true" data-id="c4" data-text="МРТ головного мозга">
+          <img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">
+          <span class="answer-text">МРТ головного мозга</span>
+        </div>
+        <div class="answer-card" draggable="true" data-id="c5" data-text="ПЭТ-КТ">
+          <img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">
+          <span class="answer-text">ПЭТ-КТ</span>
+        </div>
+        <div class="answer-card" draggable="true" data-id="c6" data-text="Биопсия опухоли">
+          <img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">
+          <span class="answer-text">Биопсия опухоли</span>
+        </div>
+      </div>
+
+      <!-- Bags -->
+      <div class="bags fu3">
+        <div class="bag bag-a" id="bagA">
+          <div class="bag-header">
+            <div class="bag-letter">А</div>
+            <div class="bag-title">Диагностика I–II</div>
+          </div>
+          <img class="bag-inbox-icon" src="https://www.figma.com/api/mcp/asset/263d7feb-4e60-41b1-b0e6-45bae6a6abd8" alt="">
+          <div class="bag-empty" id="emptyA">Перетащите сюда</div>
+          <div class="bag-items" id="itemsA"></div>
+        </div>
+        <div class="bag bag-b" id="bagB">
+          <div class="bag-header">
+            <div class="bag-letter">Б</div>
+            <div class="bag-title">Диагностика III–IV</div>
+          </div>
+          <img class="bag-inbox-icon" src="https://www.figma.com/api/mcp/asset/d1538f95-fb49-4f3b-a03a-80c4a6d8ff2d" alt="">
+          <div class="bag-empty" id="emptyB">Перетащите сюда</div>
+          <div class="bag-items" id="itemsB"></div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-row fu4">
+        <button class="btn-next" id="btnNext">ДАЛЕЕ</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer fu5">
+    <div class="footer-btns">
+      <button class="btn-sec"><img src="https://www.figma.com/api/mcp/asset/ad87c546-a62d-4979-879b-8749a265f4e6" alt=""> Источники</button>
+      <button class="btn-sec"><img src="https://www.figma.com/api/mcp/asset/2fc0d238-db35-45ce-ac42-07e315aa8478" alt=""> Аббревиатуры</button>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// ── TIMER ──
+const CIRC = 2 * Math.PI * 70; // r=70 → ~440
+const ringEl = document.getElementById('ringFill');
+const numEl  = document.getElementById('timerNum');
+ringEl.style.strokeDasharray = CIRC;
+let secs = 55;
+
+function tick() {
+  const offset = CIRC * (1 - secs / 60);
+  ringEl.style.strokeDashoffset = offset;
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  numEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  if (secs <= 10) {
+    ringEl.style.stroke = '#FF5C7A';
+    numEl.style.color   = '#FF5C7A';
+  }
+  if (secs <= 0) { clearInterval(timer); return; }
+  secs--;
+}
+tick();
+const timer = setInterval(tick, 1000);
+
+// ── DRAG & DROP ──
+let dragId = null, dragText = '';
+const placed = {};
+const ghost = document.getElementById('ghost');
+
+document.querySelectorAll('.answer-card').forEach(card => {
+  card.addEventListener('dragstart', e => {
+    dragId = card.dataset.id; dragText = card.dataset.text;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging'); ghost.style.opacity = '0';
+  });
+
+  // Touch
+  let gox = 0, goy = 0;
+  card.addEventListener('touchstart', e => {
+    dragId = card.dataset.id; dragText = card.dataset.text;
+    const t = e.touches[0], r = card.getBoundingClientRect();
+    gox = t.clientX - r.left; goy = t.clientY - r.top;
+    ghost.textContent = dragText;
+    ghost.style.width = r.width + 'px';
+    ghost.style.opacity = '1';
+    ghost.style.left = (t.clientX - gox) + 'px';
+    ghost.style.top  = (t.clientY - goy) + 'px';
+    card.classList.add('dragging');
+  }, {passive: true});
+  card.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    ghost.style.left = (t.clientX - gox) + 'px';
+    ghost.style.top  = (t.clientY - goy) + 'px';
+    ['bagA','bagB'].forEach(bid => {
+      const b = document.getElementById(bid), r = b.getBoundingClientRect();
+      b.classList.toggle('drag-over',
+        t.clientX >= r.left && t.clientX <= r.right &&
+        t.clientY >= r.top  && t.clientY <= r.bottom);
+    });
+  }, {passive: false});
+  card.addEventListener('touchend', e => {
+    ghost.style.opacity = '0'; card.classList.remove('dragging');
+    const t = e.changedTouches[0];
+    ['bagA','bagB'].forEach(bid => {
+      const b = document.getElementById(bid), r = b.getBoundingClientRect();
+      b.classList.remove('drag-over');
+      if (t.clientX >= r.left && t.clientX <= r.right &&
+          t.clientY >= r.top  && t.clientY <= r.bottom)
+        dropCard(dragId, dragText, bid === 'bagA' ? 'A' : 'B');
+    });
+  });
+});
+
+document.addEventListener('dragover', e => {
+  e.preventDefault();
+  ghost.style.opacity = '1';
+  ghost.style.left = (e.clientX + 14) + 'px';
+  ghost.style.top  = (e.clientY + 14) + 'px';
+});
+
+['bagA','bagB'].forEach(bid => {
+  const bag = document.getElementById(bid);
+  bag.addEventListener('dragover',  e => { e.preventDefault(); bag.classList.add('drag-over'); });
+  bag.addEventListener('dragleave', ()  => bag.classList.remove('drag-over'));
+  bag.addEventListener('drop', e => {
+    e.preventDefault(); bag.classList.remove('drag-over');
+    if (dragId) dropCard(dragId, dragText, bid === 'bagA' ? 'A' : 'B');
+  });
+});
+
+function dropCard(id, text, zone) {
+  if (placed[id]) {
+    const prev = document.getElementById('items' + placed[id]);
+    prev.querySelector(`[data-card-id="${id}"]`)?.remove();
+  }
+  document.querySelector(`.answer-card[data-id="${id}"]`)?.classList.add('placed');
+  placed[id] = zone;
+
+  const container = document.getElementById('items' + zone);
+  const el = document.createElement('div');
+  el.className = 'bag-item';
+  el.dataset.cardId = id;
+  const dragIconHtml = `<img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">`;
+  el.innerHTML = `${dragIconHtml}<span style="flex:1">${text}</span><button class="bag-item-rm" data-id="${id}" data-zone="${zone}">✕</button>`;
+  container.appendChild(el);
+  el.querySelector('.bag-item-rm').addEventListener('click', function() {
+    removeCard(this.dataset.id, this.dataset.zone);
+  });
+
+  updateHints(); checkBtn(); dragId = null;
+}
+
+function removeCard(id, zone) {
+  document.querySelector(`.answer-card[data-id="${id}"]`)?.classList.remove('placed');
+  document.querySelector(`#items${zone} [data-card-id="${id}"]`)?.remove();
+  delete placed[id];
+  updateHints(); checkBtn();
+}
+
+function updateHints() {
+  ['A','B'].forEach(z => {
+    const items = document.getElementById('items' + z);
+    const empty = document.getElementById('empty' + z);
+    empty.style.display = items.children.length ? 'none' : 'block';
+  });
+}
+
+function checkBtn() {
+  const btn = document.getElementById('btnNext');
+  if (Object.keys(placed).length >= 6) {
+    btn.classList.add('enabled');
+  } else {
+    btn.classList.remove('enabled');
+  }
+}
+</script>
+</body>
+</html>
