@@ -423,6 +423,95 @@ body {
   font-family:'Neuropol X',sans-serif; font-style:italic;
   font-size:28px; letter-spacing:1.4px; color:var(--az-brand);
 }
+
+/* ORDER TYPE */
+.order-list { display:flex; flex-direction:column; gap:12px; }
+.order-item {
+  display:flex; align-items:center; gap:16px;
+  background:var(--bg-20); border:1px solid var(--white-10);
+  border-radius:var(--radius-12); padding:16px 24px;
+  cursor:grab; user-select:none; transition:all 0.2s;
+}
+.order-item:hover { border-color:var(--cian-30); }
+.order-item.dragging { opacity:0.3; transform:scale(0.98); }
+.order-item.correct { background:rgba(57,217,138,0.12); border-color:#39D98A; }
+.order-item.wrong   { background:rgba(255,92,122,0.12);  border-color:#FF5C7A; }
+.order-num {
+  width:32px; height:32px; border-radius:50%;
+  background:var(--cian-7); border:1.5px solid var(--cian-30);
+  font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:16px; color:var(--cian);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.order-item.correct .order-num { background:rgba(57,217,138,0.15); border-color:#39D98A; color:#39D98A; }
+.order-item.wrong   .order-num { background:rgba(255,92,122,0.15); border-color:#FF5C7A; color:#FF5C7A; }
+.order-text { flex:1; font-size:18px; font-weight:600; line-height:28px; color:var(--white); }
+
+/* SELECT TYPE */
+.select-list { display:flex; flex-direction:column; gap:12px; }
+.select-option {
+  display:flex; align-items:center; gap:16px;
+  background:var(--bg-20); border:1px solid var(--white-10);
+  border-radius:var(--radius-12); padding:20px 24px;
+  cursor:pointer; transition:all 0.2s;
+}
+.select-option:hover { border-color:var(--cian-30); }
+.select-option.selected { background:var(--cian-7); border-color:var(--cian-60); }
+.select-option.correct  { background:rgba(57,217,138,0.12); border-color:#39D98A; }
+.select-option.wrong    { background:rgba(255,92,122,0.12); border-color:#FF5C7A; }
+.select-radio {
+  width:20px; height:20px; border-radius:50%;
+  border:2px solid var(--white-30); flex-shrink:0;
+  transition:all 0.2s;
+}
+.select-option.selected .select-radio { border-color:var(--cian); background:var(--cian); }
+.select-option.correct  .select-radio { border-color:#39D98A; background:#39D98A; }
+.select-option.wrong    .select-radio { border-color:#FF5C7A; background:#FF5C7A; }
+.select-text { flex:1; font-size:18px; font-weight:600; line-height:28px; color:var(--white); }
+
+/* REMOVE TYPE */
+.remove-list { display:flex; flex-wrap:wrap; gap:12px; }
+.remove-item {
+  background:var(--bg-20); border:1px solid var(--white-10);
+  border-radius:var(--radius-12); padding:16px 24px;
+  font-size:18px; font-weight:600; line-height:28px; color:var(--white);
+  cursor:pointer; transition:all 0.2s;
+}
+.remove-item:hover { border-color:var(--cian-30); }
+.remove-item.selected { background:var(--violet-7); border-color:var(--violet-60); }
+.remove-item.correct  { background:rgba(57,217,138,0.12); border-color:#39D98A; }
+.remove-item.wrong    { background:rgba(255,92,122,0.12); border-color:#FF5C7A; }
+
+/* FINALE */
+.finale-screen {
+  position:absolute; inset:0; z-index:100;
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center; gap:40px;
+}
+.finale-screen.visible { display:flex; }
+.finale-title {
+  font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:48px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--cian); text-align:center;
+}
+.finale-score {
+  font-family:'Neuropol X',sans-serif; font-style:italic;
+  font-size:96px; letter-spacing:4px; color:var(--az-brand);
+  text-align:center;
+}
+.finale-label {
+  font-size:18px; font-weight:600; color:var(--white-50);
+  text-transform:uppercase; letter-spacing:0.6px;
+  margin-top:-24px; text-align:center;
+}
+.btn-restart {
+  background:linear-gradient(135deg, #00D1FF 0%, #7B61FF 100%);
+  border:none; border-radius:var(--radius-8); padding:16px 48px; cursor:pointer;
+  font-family:'Neuropol X',sans-serif; font-size:24px;
+  letter-spacing:1.2px; text-transform:uppercase; color:white;
+  box-shadow:0 8px 32px rgba(0,209,255,0.3); transition:all 0.2s;
+}
+.btn-restart:hover { transform:translateY(-3px); box-shadow:0 14px 48px rgba(0,209,255,0.45); }
 </style>
 </head>
 <body>
@@ -457,8 +546,8 @@ body {
 
       <!-- Left: level info -->
       <div class="dash-left">
-        <div class="dash-level">Уровень №1</div>
-        <div class="dash-type">Распределение по корзинам</div>
+        <div class="dash-level" id="dashLevel">Уровень №1</div>
+        <div class="dash-type"  id="dashType">Распределение по корзинам</div>
       </div>
 
       <!-- Center: timer + dots -->
@@ -471,16 +560,7 @@ body {
           <div class="timer-num" id="timerNum">0:55</div>
         </div>
         <div class="timer-label">Осталось</div>
-        <div class="prog-dots">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot active"></div>
-          <div class="dot empty"></div>
-          <div class="dot empty"></div>
-          <div class="dot empty"></div>
-          <div class="dot empty"></div>
-        </div>
+        <div class="prog-dots" id="progDots"></div>
       </div>
 
       <!-- Right: type badges -->
@@ -502,7 +582,7 @@ body {
     </div>
 
     <!-- PLAYER SECTION -->
-    <div class="player-section fu2">
+    <div class="player-section fu2" id="playerSection">
 
       <!-- Question header -->
       <div style="display:flex;flex-direction:column;gap:32px">
@@ -574,6 +654,14 @@ body {
     </div>
   </main>
 
+  <!-- FINALE SCREEN -->
+  <div class="finale-screen" id="finaleScreen">
+    <div class="finale-title">Викторина завершена!</div>
+    <div class="finale-score" id="finaleScore">0</div>
+    <div class="finale-label">очков набрано</div>
+    <button class="btn-restart" onclick="location.reload()">Сыграть снова</button>
+  </div>
+
   <!-- STATUS BAR -->
   <div class="status-bar" id="statusBar">
     <div class="status-bar-text" id="statusText"></div>
@@ -592,216 +680,409 @@ body {
 
 <script src="js/questions.js"></script>
 <script>
-// ── STATE ──
-let checked = false;
-let totalScore = 0;
-const currentQuestion = QUESTIONS[0]; // Step 3 will make this dynamic
+// ══════════════════════════════════════════════
+// QUIZ ENGINE
+// ══════════════════════════════════════════════
 
-// ── TIMER ──
-const CIRC = 2 * Math.PI * 70;
-const ringEl = document.getElementById('ringFill');
-const numEl  = document.getElementById('timerNum');
+const CIRC    = 2 * Math.PI * 70;
+const DRAG_IC = 'https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3';
+const TYPE_LABELS = {
+  bags:   'Распределение по корзинам',
+  order:  'Правильная последовательность',
+  select: 'Выбор правильного ответа',
+  remove: 'Убрать лишнее'
+};
+const BADGE_TYPES = ['bags','order','select','remove'];
+
+// ── DOM ──
+const ringEl   = document.getElementById('ringFill');
+const numEl    = document.getElementById('timerNum');
+const ghost    = document.getElementById('ghost');
+const ps       = document.getElementById('playerSection');
+const dashLvl  = document.getElementById('dashLevel');
+const dashTyp  = document.getElementById('dashType');
+const progDots = document.getElementById('progDots');
+const badges   = document.querySelectorAll('.type-badge');
 ringEl.style.strokeDasharray = CIRC;
-let secs = currentQuestion.timeLimit;
 
-function tick() {
-  const offset = CIRC * (1 - secs / currentQuestion.timeLimit);
-  ringEl.style.strokeDashoffset = offset;
-  const m = Math.floor(secs / 60);
-  const s = secs % 60;
-  numEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-  if (secs <= 10) {
-    ringEl.style.stroke = '#FF5C7A';
-    numEl.style.color   = '#FF5C7A';
-  }
-  if (secs <= 0) { clearInterval(timer); checkAnswers(); return; }
-  secs--;
-}
-tick();
-const timer = setInterval(tick, 1000);
+// ── STATE ──
+let qIndex = 0, checked = false, totalScore = 0;
+let timerInt = null, timerSecs = 0;
+let placed = {}, orderIds = [], selectedId = null, dragId = null, dragText = '';
 
-// ── NEXT BUTTON ──
-document.getElementById('btnNext').addEventListener('click', function() {
-  if (checked) return; // Step 3 handles navigation
-  if (!this.classList.contains('enabled')) return;
-  checkAnswers();
-});
-
-// ── DRAG & DROP ──
-let dragId = null, dragText = '';
-const placed = {};
-const ghost = document.getElementById('ghost');
-
-document.querySelectorAll('.answer-card').forEach(card => {
-  card.addEventListener('dragstart', e => {
-    dragId = card.dataset.id; dragText = card.dataset.text;
-    card.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
-  });
-  card.addEventListener('dragend', () => {
-    card.classList.remove('dragging'); ghost.style.opacity = '0';
-  });
-
-  // Touch
-  let gox = 0, goy = 0;
-  card.addEventListener('touchstart', e => {
-    dragId = card.dataset.id; dragText = card.dataset.text;
-    const t = e.touches[0], r = card.getBoundingClientRect();
-    gox = t.clientX - r.left; goy = t.clientY - r.top;
-    ghost.textContent = dragText;
-    ghost.style.width = r.width + 'px';
-    ghost.style.opacity = '1';
-    ghost.style.left = (t.clientX - gox) + 'px';
-    ghost.style.top  = (t.clientY - goy) + 'px';
-    card.classList.add('dragging');
-  }, {passive: true});
-  card.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const t = e.touches[0];
-    ghost.style.left = (t.clientX - gox) + 'px';
-    ghost.style.top  = (t.clientY - goy) + 'px';
-    ['bagA','bagB'].forEach(bid => {
-      const b = document.getElementById(bid), r = b.getBoundingClientRect();
-      b.classList.toggle('drag-over',
-        t.clientX >= r.left && t.clientX <= r.right &&
-        t.clientY >= r.top  && t.clientY <= r.bottom);
-    });
-  }, {passive: false});
-  card.addEventListener('touchend', e => {
-    ghost.style.opacity = '0'; card.classList.remove('dragging');
-    const t = e.changedTouches[0];
-    ['bagA','bagB'].forEach(bid => {
-      const b = document.getElementById(bid), r = b.getBoundingClientRect();
-      b.classList.remove('drag-over');
-      if (t.clientX >= r.left && t.clientX <= r.right &&
-          t.clientY >= r.top  && t.clientY <= r.bottom)
-        dropCard(dragId, dragText, bid === 'bagA' ? 'A' : 'B');
-    });
-  });
-});
-
-document.addEventListener('dragover', e => {
+// ── GLOBAL DRAG GHOST ──
+function onGlobalDragOver(e) {
   e.preventDefault();
   ghost.style.opacity = '1';
   ghost.style.left = (e.clientX + 14) + 'px';
   ghost.style.top  = (e.clientY + 14) + 'px';
-});
+}
 
-['bagA','bagB'].forEach(bid => {
-  const bag = document.getElementById(bid);
-  bag.addEventListener('dragover',  e => { e.preventDefault(); bag.classList.add('drag-over'); });
-  bag.addEventListener('dragleave', ()  => bag.classList.remove('drag-over'));
-  bag.addEventListener('drop', e => {
-    e.preventDefault(); bag.classList.remove('drag-over');
-    if (dragId) dropCard(dragId, dragText, bid === 'bagA' ? 'A' : 'B');
+// ── INIT ──
+function loadQuestion(idx) {
+  if (idx >= QUESTIONS.length) { showFinale(); return; }
+  qIndex = idx; checked = false;
+  placed = {}; orderIds = []; selectedId = null; dragId = null;
+  document.removeEventListener('dragover', onGlobalDragOver);
+
+  // Reset status bar
+  const sb = document.getElementById('statusBar');
+  sb.classList.remove('visible');
+  document.getElementById('statusText').className = 'status-bar-text';
+
+  const q = QUESTIONS[qIndex];
+
+  // Dashboard
+  dashLvl.textContent = 'Уровень №' + q.level;
+  dashTyp.textContent = TYPE_LABELS[q.type] || '';
+  const bi = BADGE_TYPES.indexOf(q.type);
+  badges.forEach((b, i) => b.className = 'type-badge ' + (i === bi ? 'active' : 'inactive'));
+
+  // Dots
+  progDots.innerHTML = QUESTIONS.map((_, i) =>
+    `<div class="dot${i === qIndex ? ' active' : i < qIndex ? '' : ' empty'}"></div>`
+  ).join('');
+
+  // Timer
+  clearInterval(timerInt);
+  ringEl.style.stroke = 'var(--cian)'; numEl.style.color = 'var(--cian)';
+  timerSecs = q.timeLimit;
+  tickTimer();
+  timerInt = setInterval(tickTimer, 1000);
+
+  // Render
+  renderQuestion(q);
+}
+
+function tickTimer() {
+  const q = QUESTIONS[qIndex];
+  ringEl.style.strokeDashoffset = CIRC * (1 - timerSecs / q.timeLimit);
+  const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
+  numEl.textContent = m + ':' + String(s).padStart(2, '0');
+  if (timerSecs <= 10) { ringEl.style.stroke = '#FF5C7A'; numEl.style.color = '#FF5C7A'; }
+  if (timerSecs <= 0)  { clearInterval(timerInt); checkAnswers(); return; }
+  timerSecs--;
+}
+
+// ── RENDER ──
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderQuestion(q) {
+  const hintHtml = q.type === 'bags'
+    ? 'Перетаскивайте варианты в корзину <span class="h-cian">А</span> или <span class="h-violet">Б</span>'
+    : esc(q.hint);
+
+  let body = '';
+  if      (q.type === 'bags')   body = renderBags(q);
+  else if (q.type === 'order')  body = renderOrder(q);
+  else if (q.type === 'select') body = renderSelect(q);
+  else if (q.type === 'remove') body = renderRemove(q);
+
+  ps.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:32px">
+      <div class="q-label">
+        <div class="q-num-badge">№ ${q.id}</div>
+        <div class="q-hint">${hintHtml}</div>
+      </div>
+      <div class="q-text">${esc(q.title)}</div>
+    </div>
+    ${body}
+    <div class="cta-row fu4"><button class="btn-next" id="btnNext">ДАЛЕЕ</button></div>`;
+
+  document.getElementById('btnNext').addEventListener('click', onNext);
+
+  if      (q.type === 'bags')   initBags(q);
+  else if (q.type === 'order')  initOrder(q);
+  else if (q.type === 'select') initSelect();
+  else if (q.type === 'remove') initRemove();
+}
+
+// ── BAGS ──
+function renderBags(q) {
+  const cards = q.cards.map(c =>
+    `<div class="answer-card" draggable="true" data-id="${c.id}" data-text="${esc(c.text)}">
+      <img class="drag-icon" src="${DRAG_IC}" alt="">
+      <span class="answer-text">${esc(c.text)}</span>
+    </div>`).join('');
+  return `
+    <div class="answers-pool" id="pool">${cards}</div>
+    <div class="bags fu3">
+      <div class="bag bag-a" id="bagA">
+        <div class="bag-header"><div class="bag-letter">А</div><div class="bag-title">${esc(q.bagA.label)}</div></div>
+        <div class="bag-empty" id="emptyA">Перетащите сюда</div>
+        <div class="bag-items" id="itemsA"></div>
+      </div>
+      <div class="bag bag-b" id="bagB">
+        <div class="bag-header"><div class="bag-letter">Б</div><div class="bag-title">${esc(q.bagB.label)}</div></div>
+        <div class="bag-empty" id="emptyB">Перетащите сюда</div>
+        <div class="bag-items" id="itemsB"></div>
+      </div>
+    </div>`;
+}
+
+function initBags(q) {
+  const total = q.cards.length;
+  document.addEventListener('dragover', onGlobalDragOver);
+
+  document.querySelectorAll('.answer-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      if (checked) return;
+      dragId = card.dataset.id; dragText = card.dataset.text;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
+    });
+    card.addEventListener('dragend', () => { card.classList.remove('dragging'); ghost.style.opacity = '0'; });
+
+    let gox = 0, goy = 0;
+    card.addEventListener('touchstart', e => {
+      if (checked) return;
+      dragId = card.dataset.id; dragText = card.dataset.text;
+      const t = e.touches[0], r = card.getBoundingClientRect();
+      gox = t.clientX - r.left; goy = t.clientY - r.top;
+      ghost.textContent = dragText; ghost.style.width = r.width + 'px'; ghost.style.opacity = '1';
+      ghost.style.left = (t.clientX - gox) + 'px'; ghost.style.top = (t.clientY - goy) + 'px';
+      card.classList.add('dragging');
+    }, {passive:true});
+    card.addEventListener('touchmove', e => {
+      if (checked) return; e.preventDefault();
+      const t = e.touches[0];
+      ghost.style.left = (t.clientX - gox) + 'px'; ghost.style.top = (t.clientY - goy) + 'px';
+      ['bagA','bagB'].forEach(bid => {
+        const b = document.getElementById(bid), r = b.getBoundingClientRect();
+        b.classList.toggle('drag-over', t.clientX>=r.left && t.clientX<=r.right && t.clientY>=r.top && t.clientY<=r.bottom);
+      });
+    }, {passive:false});
+    card.addEventListener('touchend', e => {
+      ghost.style.opacity = '0'; card.classList.remove('dragging');
+      if (checked) return;
+      const t = e.changedTouches[0];
+      ['bagA','bagB'].forEach(bid => {
+        const b = document.getElementById(bid), r = b.getBoundingClientRect();
+        b.classList.remove('drag-over');
+        if (t.clientX>=r.left && t.clientX<=r.right && t.clientY>=r.top && t.clientY<=r.bottom)
+          dropCard(dragId, dragText, bid==='bagA'?'A':'B', total);
+      });
+    });
   });
-});
 
-function dropCard(id, text, zone) {
-  if (placed[id]) {
-    const prev = document.getElementById('items' + placed[id]);
-    prev.querySelector(`[data-card-id="${id}"]`)?.remove();
-  }
+  ['bagA','bagB'].forEach(bid => {
+    const bag = document.getElementById(bid);
+    bag.addEventListener('dragover',  e => { e.preventDefault(); bag.classList.add('drag-over'); });
+    bag.addEventListener('dragleave', ()  => bag.classList.remove('drag-over'));
+    bag.addEventListener('drop', e => {
+      e.preventDefault(); bag.classList.remove('drag-over');
+      if (dragId && !checked) dropCard(dragId, dragText, bid==='bagA'?'A':'B', total);
+    });
+  });
+}
+
+function dropCard(id, text, zone, total) {
+  if (placed[id]) document.querySelector(`#items${placed[id]} [data-card-id="${id}"]`)?.remove();
   document.querySelector(`.answer-card[data-id="${id}"]`)?.classList.add('placed');
   placed[id] = zone;
-
-  const container = document.getElementById('items' + zone);
   const el = document.createElement('div');
-  el.className = 'bag-item';
-  el.dataset.cardId = id;
-  const dragIconHtml = `<img class="drag-icon" src="https://www.figma.com/api/mcp/asset/84a40e2c-624f-4844-a18a-c4e42783b0e3" alt="">`;
-  el.innerHTML = `${dragIconHtml}<span style="flex:1">${text}</span><button class="bag-item-rm" data-id="${id}" data-zone="${zone}">✕</button>`;
-  container.appendChild(el);
+  el.className = 'bag-item'; el.dataset.cardId = id;
+  el.innerHTML = `<img class="drag-icon" src="${DRAG_IC}" alt=""><span style="flex:1">${text}</span><button class="bag-item-rm" data-id="${id}" data-zone="${zone}">✕</button>`;
+  document.getElementById('items' + zone).appendChild(el);
   el.querySelector('.bag-item-rm').addEventListener('click', function() {
-    removeCard(this.dataset.id, this.dataset.zone);
+    if (checked) return;
+    document.querySelector(`.answer-card[data-id="${this.dataset.id}"]`)?.classList.remove('placed');
+    document.querySelector(`#items${this.dataset.zone} [data-card-id="${this.dataset.id}"]`)?.remove();
+    delete placed[this.dataset.id];
+    updateBagHints(); bagCheckBtn(total);
   });
-
-  updateHints(); checkBtn(); dragId = null;
+  updateBagHints(); bagCheckBtn(total); dragId = null;
 }
-
-function removeCard(id, zone) {
-  document.querySelector(`.answer-card[data-id="${id}"]`)?.classList.remove('placed');
-  document.querySelector(`#items${zone} [data-card-id="${id}"]`)?.remove();
-  delete placed[id];
-  updateHints(); checkBtn();
-}
-
-function updateHints() {
+function updateBagHints() {
   ['A','B'].forEach(z => {
-    const items = document.getElementById('items' + z);
-    const empty = document.getElementById('empty' + z);
-    empty.style.display = items.children.length ? 'none' : 'block';
+    const it = document.getElementById('items'+z), em = document.getElementById('empty'+z);
+    if (it && em) em.style.display = it.children.length ? 'none' : 'block';
+  });
+}
+function bagCheckBtn(total) {
+  const btn = document.getElementById('btnNext');
+  if (btn) btn.classList.toggle('enabled', Object.keys(placed).length >= total);
+}
+
+// ── ORDER ──
+function renderOrder(q) {
+  const shuffled = [...q.items].sort(() => Math.random() - 0.5);
+  orderIds = shuffled.map(i => i.id);
+  return `<div class="order-list" id="orderList">${
+    shuffled.map((item, i) =>
+      `<div class="order-item" data-id="${item.id}" draggable="true">
+        <div class="order-num">${i+1}</div>
+        <span class="order-text">${esc(item.text)}</span>
+        <img class="drag-icon" src="${DRAG_IC}" alt="">
+      </div>`).join('')
+  }</div>`;
+}
+function initOrder() {
+  const list = document.getElementById('orderList');
+  let dragSrc = null;
+  list.querySelectorAll('.order-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragSrc = item; item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === item) return;
+      const mid = item.getBoundingClientRect().top + item.getBoundingClientRect().height / 2;
+      list.insertBefore(dragSrc, e.clientY < mid ? item : item.nextSibling);
+      reindexOrder();
+    });
+    let ty0 = 0;
+    item.addEventListener('touchstart', e => { dragSrc = item; ty0 = e.touches[0].clientY; item.classList.add('dragging'); }, {passive:true});
+    item.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const y = e.touches[0].clientY;
+      [...list.querySelectorAll('.order-item:not(.dragging)')].forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (y >= r.top && y <= r.bottom) {
+          list.insertBefore(dragSrc, y < r.top + r.height/2 ? el : el.nextSibling);
+          reindexOrder();
+        }
+      });
+    }, {passive:false});
+    item.addEventListener('touchend', () => item.classList.remove('dragging'));
+  });
+  document.getElementById('btnNext').classList.add('enabled');
+}
+function reindexOrder() {
+  const list = document.getElementById('orderList'); if (!list) return;
+  orderIds = [];
+  list.querySelectorAll('.order-item').forEach((el, i) => {
+    el.querySelector('.order-num').textContent = i + 1;
+    orderIds.push(el.dataset.id);
   });
 }
 
-function checkBtn() {
-  const btn = document.getElementById('btnNext');
-  const total = currentQuestion.cards ? currentQuestion.cards.length : 0;
-  if (Object.keys(placed).length >= total) {
-    btn.classList.add('enabled');
+// ── SELECT ──
+function renderSelect(q) {
+  return `<div class="select-list" id="selectList">${
+    q.options.map(o =>
+      `<div class="select-option" data-id="${o.id}">
+        <div class="select-radio"></div>
+        <span class="select-text">${esc(o.text)}</span>
+      </div>`).join('')
+  }</div>`;
+}
+function initSelect() {
+  document.querySelectorAll('.select-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (checked) return;
+      document.querySelectorAll('.select-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedId = opt.dataset.id;
+      document.getElementById('btnNext').classList.add('enabled');
+    });
+  });
+}
+
+// ── REMOVE ──
+function renderRemove(q) {
+  return `<div class="remove-list" id="removeList">${
+    q.items.map(i =>
+      `<div class="remove-item" data-id="${i.id}">${esc(i.text)}</div>`).join('')
+  }</div>`;
+}
+function initRemove() {
+  document.querySelectorAll('.remove-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (checked) return;
+      document.querySelectorAll('.remove-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      selectedId = item.dataset.id;
+      document.getElementById('btnNext').classList.add('enabled');
+    });
+  });
+}
+
+// ── NEXT BUTTON ──
+function onNext() {
+  if (!checked) {
+    if (!document.getElementById('btnNext').classList.contains('enabled')) return;
+    checkAnswers();
   } else {
-    btn.classList.remove('enabled');
+    loadQuestion(qIndex + 1);
   }
 }
 
-// ── CHECK ANSWERS ──
+// ── CHECK ──
 function checkAnswers() {
   if (checked) return;
   checked = true;
-  clearInterval(timer);
+  clearInterval(timerInt);
+  document.removeEventListener('dragover', onGlobalDragOver);
 
-  // Disable drag
-  document.querySelectorAll('.answer-card').forEach(c => {
-    c.setAttribute('draggable', 'false');
-    c.style.cursor = 'default';
-  });
+  const q = QUESTIONS[qIndex];
+  let correctCount = 0, total = 0;
 
-  // Build correct answer map from QUESTIONS data
-  const correctMap = {};
-  if (currentQuestion.cards) {
-    currentQuestion.cards.forEach(c => { correctMap[c.id] = c.correct; });
+  if (q.type === 'bags') {
+    total = q.cards.length;
+    const cm = {}; q.cards.forEach(c => { cm[c.id] = c.correct; });
+    document.querySelectorAll('.answer-card').forEach(c => { c.setAttribute('draggable','false'); c.style.cursor='default'; });
+    Object.keys(placed).forEach(id => {
+      const el = document.querySelector(`#items${placed[id]} [data-card-id="${id}"]`);
+      if (!el) return;
+      if (cm[id] === placed[id]) { el.classList.add('correct'); correctCount++; }
+      else el.classList.add('wrong');
+    });
+
+  } else if (q.type === 'order') {
+    total = q.items.length;
+    const cm = {}; q.items.forEach(i => { cm[i.id] = i.correctPosition; });
+    reindexOrder();
+    document.querySelectorAll('.order-item').forEach((el, i) => {
+      if (cm[el.dataset.id] === i+1) { el.classList.add('correct'); correctCount++; }
+      else el.classList.add('wrong');
+    });
+
+  } else if (q.type === 'select') {
+    total = 1;
+    document.querySelectorAll('.select-option').forEach(el => {
+      const opt = q.options.find(o => o.id === el.dataset.id);
+      if (opt.correct) { el.classList.add('correct'); if (el.dataset.id === selectedId) correctCount = 1; }
+      else if (el.dataset.id === selectedId) el.classList.add('wrong');
+    });
+
+  } else if (q.type === 'remove') {
+    total = 1;
+    document.querySelectorAll('.remove-item').forEach(el => {
+      const item = q.items.find(i => i.id === el.dataset.id);
+      if (item.isWrong)  { el.classList.add('correct'); if (el.dataset.id === selectedId) correctCount = 1; }
+      else if (el.dataset.id === selectedId) el.classList.add('wrong');
+    });
   }
 
-  // Highlight placed cards
-  let correctCount = 0;
-  const totalPlaced = Object.keys(placed).length;
-
-  Object.keys(placed).forEach(id => {
-    const zone = placed[id];
-    const el = document.querySelector(`#items${zone} [data-card-id="${id}"]`);
-    if (!el) return;
-    if (correctMap[id] === zone) {
-      el.classList.add('correct');
-      correctCount++;
-    } else {
-      el.classList.add('wrong');
-    }
-  });
-
-  // Score: 15 pts per correct card
   const points = correctCount * 15;
   totalScore += points;
 
-  // Status bar
-  const allCorrect = correctCount === (currentQuestion.cards ? currentQuestion.cards.length : totalPlaced);
-  const textEl   = document.getElementById('statusText');
-  const pointsEl = document.getElementById('statusPoints');
-
-  if (allCorrect) {
-    textEl.textContent = '★ Все верно!';
-    textEl.classList.add('all-correct');
-  } else {
-    textEl.textContent = `✓ ${correctCount} из ${currentQuestion.cards ? currentQuestion.cards.length : totalPlaced} верно`;
-  }
-  pointsEl.textContent = `+${points} очков`;
+  const allCorrect = correctCount === total;
+  const textEl = document.getElementById('statusText');
+  if (allCorrect) { textEl.textContent = '★ Все верно!'; textEl.classList.add('all-correct'); }
+  else if (correctCount === 0) { textEl.textContent = '✗ Неверно'; }
+  else { textEl.textContent = `✓ ${correctCount} из ${total} верно`; }
+  document.getElementById('statusPoints').textContent = '+' + points + ' очков';
   document.getElementById('statusBar').classList.add('visible');
 
-  // Change button
   const btn = document.getElementById('btnNext');
   btn.classList.add('enabled');
-  btn.textContent = 'СЛЕДУЮЩИЙ ВОПРОС';
+  btn.textContent = qIndex + 1 < QUESTIONS.length ? 'СЛЕДУЮЩИЙ ВОПРОС' : 'ФИНАЛ';
 }
+
+// ── FINALE ──
+function showFinale() {
+  document.getElementById('finaleScreen').classList.add('visible');
+  document.getElementById('finaleScore').textContent = totalScore;
+}
+
+// ── START ──
+loadQuestion(0);
 </script>
 </body>
 </html>
