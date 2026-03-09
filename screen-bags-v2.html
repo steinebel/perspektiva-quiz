@@ -720,10 +720,11 @@ function loadQuestion(idx) {
   placed = {}; orderIds = []; selectedId = null; dragId = null;
   document.removeEventListener('dragover', onGlobalDragOver);
 
-  // Reset status bar
+  // Reset status bar (exists only after first render)
   const sb = document.getElementById('statusBar');
-  sb.classList.remove('visible');
-  document.getElementById('statusText').className = 'status-bar-text';
+  if (sb) { sb.classList.remove('visible'); }
+  const st = document.getElementById('statusText');
+  if (st) { st.className = 'status-bar-text'; }
 
   const q = QUESTIONS[qIndex];
 
