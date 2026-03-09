@@ -48,8 +48,7 @@ body { width:1080px; height:1920px; overflow:hidden;
 .az-letters { width:107px; height:14px; object-fit:contain; object-position:bottom; }
 .az-symbol { width:26px; height:32px; object-fit:contain; object-position:bottom; }
 .header-right { display:flex; align-items:center; gap:24px; }
-.pro-logo { position:relative; width:89px; height:26px; }
-.pro-logo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+.pro-logo { width:89px; height:auto; display:block; flex-shrink:0; }
 .persp-logo { width:57px; height:67px; object-fit:contain; }
 
 /* MAIN */
@@ -211,10 +210,7 @@ body { width:1080px; height:1920px; overflow:hidden;
       <img class="az-symbol"  src="https://www.figma.com/api/mcp/asset/6ec8232d-fd68-4ff8-925a-60afdf10b815" alt="">
     </div>
     <div class="header-right">
-      <div class="pro-logo">
-        <img src="https://www.figma.com/api/mcp/asset/fca01be6-70d7-414c-af04-db5c44eb4ea4" alt="">
-        <img src="https://www.figma.com/api/mcp/asset/acbd8f2d-1097-4d46-89c2-c6de3c934048" alt="PRO">
-      </div>
+      <img class="pro-logo" src="./assets/images/pro-rak-logo.svg" alt="PRO Рак Лёгкого">
       <img class="persp-logo" src="https://www.figma.com/api/mcp/asset/1c248aab-f903-46d4-ba04-4ded22feb92a" alt="Перспектива">
     </div>
   </header>
