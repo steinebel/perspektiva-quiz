@@ -193,11 +193,11 @@ body {
 /* Level badges column */
 .dash-right {
   flex:1; display:flex; flex-direction:column;
-  align-items:flex-end; justify-content:space-between;
+  align-items:center; justify-content:space-between;
   align-self:stretch;
 }
 .type-badge {
-  display:flex; align-items:center; gap:8px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
   padding:8px 16px; border-radius:var(--radius-100);
   border:1.5px solid; width:180px;
   font-size:12px; font-weight:600; letter-spacing:0.6px;
@@ -270,10 +270,11 @@ body {
 
 /* Bags zone */
 .bags {
-  display:grid; grid-template-columns:1fr 1fr;
-  gap:24px; height:352px;
+  display:flex; align-items:stretch; width:100%;
+  gap:24px;
 }
 .bag {
+  flex:1 0 0; min-width:0;
   border-radius:var(--radius-16);
   border:1px dashed;
   padding:24px;
@@ -352,9 +353,10 @@ body {
 
 /* CTA row */
 .cta-row {
-  display:flex; align-items:center; justify-content:flex-end;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end;
   gap:16px; padding-top:24px;
 }
+.cta-row .status-bar { flex:1 1 100%; margin-top:0; }
 .btn-next {
   background:var(--white-10);
   border:none; border-radius:var(--radius-8);
@@ -405,14 +407,13 @@ body {
 
 /* STATUS BAR */
 .status-bar {
-  position:absolute; left:56px; right:56px; bottom:-120px;
+  display:none; margin-top:16px;
   background:rgba(14,10,30,0.96); border:1px solid rgba(255,255,255,0.12);
   border-radius:var(--radius-16); padding:20px 32px;
-  display:flex; align-items:center; justify-content:space-between;
-  z-index:50; backdrop-filter:blur(20px);
-  transition:bottom 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  align-items:center; justify-content:space-between;
+  backdrop-filter:blur(20px);
 }
-.status-bar.visible { bottom:90px; }
+.status-bar.visible { display:flex; }
 .status-bar-text {
   font-family:'Neuropol X',sans-serif; font-style:italic;
   font-size:24px; letter-spacing:1.2px; text-transform:uppercase;
@@ -662,12 +663,6 @@ body {
     <button class="btn-restart" onclick="location.reload()">Сыграть снова</button>
   </div>
 
-  <!-- STATUS BAR -->
-  <div class="status-bar" id="statusBar">
-    <div class="status-bar-text" id="statusText"></div>
-    <div class="status-bar-points" id="statusPoints"></div>
-  </div>
-
   <!-- FOOTER -->
   <footer class="footer fu5">
     <div class="footer-btns">
@@ -738,9 +733,11 @@ function loadQuestion(idx) {
   const bi = BADGE_TYPES.indexOf(q.type);
   badges.forEach((b, i) => b.className = 'type-badge ' + (i === bi ? 'active' : 'inactive'));
 
-  // Dots
-  progDots.innerHTML = QUESTIONS.map((_, i) =>
-    `<div class="dot${i === qIndex ? ' active' : i < qIndex ? '' : ' empty'}"></div>`
+  // Dots — only questions of the same type (current level)
+  const sameType = QUESTIONS.filter(qq => qq.type === q.type);
+  const posInType = sameType.findIndex(qq => qq.id === q.id);
+  progDots.innerHTML = sameType.map((_, i) =>
+    `<div class="dot${i === posInType ? ' active' : i < posInType ? '' : ' empty'}"></div>`
   ).join('');
 
   // Timer
@@ -787,7 +784,13 @@ function renderQuestion(q) {
       <div class="q-text">${esc(q.title)}</div>
     </div>
     ${body}
-    <div class="cta-row fu4"><button class="btn-next" id="btnNext">ДАЛЕЕ</button></div>`;
+    <div class="cta-row fu4">
+      <button class="btn-next" id="btnNext">ДАЛЕЕ</button>
+      <div class="status-bar" id="statusBar">
+        <div class="status-bar-text" id="statusText"></div>
+        <div class="status-bar-points" id="statusPoints"></div>
+      </div>
+    </div>`;
 
   document.getElementById('btnNext').addEventListener('click', onNext);
 
@@ -1080,6 +1083,10 @@ function showFinale() {
   document.getElementById('finaleScreen').classList.add('visible');
   document.getElementById('finaleScore').textContent = totalScore;
 }
+
+// ── ПРАВКА 2: строгий порядок — bags → order → select → remove ──
+const TYPE_ORDER = ['bags','order','select','remove'];
+QUESTIONS.sort((a, b) => TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type));
 
 // ── START ──
 loadQuestion(0);
