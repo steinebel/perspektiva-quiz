@@ -205,12 +205,13 @@ body {
   transition:all 0.2s;
 }
 .type-badge img { width:24px; height:24px; object-fit:contain; flex-shrink:0; }
+.type-badge .badge-icon      { opacity:0.3; filter:none; }
+.type-badge.active .badge-icon { opacity:1; filter:drop-shadow(0 0 4px rgba(0,209,255,0.6)); }
 .type-badge.active {
-  background:var(--cian-7); border-color:var(--cian-60); color:var(--cian);
-  box-shadow:0 0 20px rgba(0,209,255,0.15);
+  background:rgba(0,209,255,0.07); border-color:rgba(0,209,255,0.6); color:#00D1FF;
 }
 .type-badge.inactive {
-  background:var(--white-5); border-color:var(--white-10); color:var(--white-30);
+  background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.3);
 }
 
 /* ── PLAYER SECTION ── */
@@ -564,16 +565,16 @@ body {
       <!-- Right: type badges -->
       <div class="dash-right">
         <div class="type-badge active" data-type="bags">
-          <img src="https://www.figma.com/api/mcp/asset/f3b3c0a8-dbb8-4ff9-8ff7-d8cc7b8b7888" alt=""> Распределить
+          <img class="badge-icon" src="https://www.figma.com/api/mcp/asset/f3b3c0a8-dbb8-4ff9-8ff7-d8cc7b8b7888" alt=""> Распределить
         </div>
         <div class="type-badge inactive" data-type="order">
-          <img src="https://www.figma.com/api/mcp/asset/2d6d871e-2c71-4418-a09d-8d8a2cc9d25c" alt=""> Упорядочить
+          <img class="badge-icon" src="https://www.figma.com/api/mcp/asset/2d6d871e-2c71-4418-a09d-8d8a2cc9d25c" alt=""> Упорядочить
         </div>
         <div class="type-badge inactive" data-type="select">
-          <img src="https://www.figma.com/api/mcp/asset/fe8bb219-2cc9-47ea-a800-75b9c3280f7c" alt=""> Выбрать
+          <img class="badge-icon" src="https://www.figma.com/api/mcp/asset/fe8bb219-2cc9-47ea-a800-75b9c3280f7c" alt=""> Выбрать
         </div>
         <div class="type-badge inactive" data-type="remove">
-          <img src="https://www.figma.com/api/mcp/asset/5f706136-1056-4e07-912a-fb185fc30c28" alt=""> Убрать
+          <img class="badge-icon" src="https://www.figma.com/api/mcp/asset/5f706136-1056-4e07-912a-fb185fc30c28" alt=""> Убрать
         </div>
       </div>
 
