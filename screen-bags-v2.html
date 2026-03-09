@@ -484,35 +484,32 @@ body {
 .remove-item.wrong    { background:rgba(255,92,122,0.12); border-color:#FF5C7A; }
 
 /* FINALE */
-.finale-screen {
-  position:absolute; inset:0; z-index:100;
-  display:none; flex-direction:column;
-  align-items:center; justify-content:center; gap:40px;
+.final-screen {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:24px; padding:60px 0; text-align:center;
 }
-.finale-screen.visible { display:flex; }
-.finale-title {
+.final-title {
   font-family:'Neuropol X',sans-serif; font-style:italic;
-  font-size:48px; letter-spacing:2px; text-transform:uppercase;
-  color:var(--cian); text-align:center;
+  font-size:40px; letter-spacing:2px; text-transform:uppercase;
+  background:linear-gradient(90deg,#00D1FF,#7B61FF);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
 }
-.finale-score {
+.final-score {
   font-family:'Neuropol X',sans-serif; font-style:italic;
-  font-size:96px; letter-spacing:4px; color:var(--az-brand);
-  text-align:center;
+  font-size:120px; color:#FFB600; line-height:1;
 }
-.finale-label {
-  font-size:18px; font-weight:600; color:var(--white-50);
-  text-transform:uppercase; letter-spacing:0.6px;
-  margin-top:-24px; text-align:center;
+.final-score-label {
+  font-size:14px; font-weight:600; letter-spacing:2px;
+  text-transform:uppercase; color:rgba(255,255,255,0.5);
 }
-.btn-restart {
-  background:linear-gradient(135deg, #00D1FF 0%, #7B61FF 100%);
+.btn-play {
+  background:linear-gradient(135deg,#00D1FF 0%,#7B61FF 100%);
   border:none; border-radius:var(--radius-8); padding:16px 48px; cursor:pointer;
   font-family:'Neuropol X',sans-serif; font-size:24px;
   letter-spacing:1.2px; text-transform:uppercase; color:white;
   box-shadow:0 8px 32px rgba(0,209,255,0.3); transition:all 0.2s;
 }
-.btn-restart:hover { transform:translateY(-3px); box-shadow:0 14px 48px rgba(0,209,255,0.45); }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 14px 48px rgba(0,209,255,0.45); }
 </style>
 </head>
 <body>
@@ -566,16 +563,16 @@ body {
 
       <!-- Right: type badges -->
       <div class="dash-right">
-        <div class="type-badge active">
+        <div class="type-badge active" data-type="bags">
           <img src="https://www.figma.com/api/mcp/asset/f3b3c0a8-dbb8-4ff9-8ff7-d8cc7b8b7888" alt=""> Распределить
         </div>
-        <div class="type-badge inactive">
+        <div class="type-badge inactive" data-type="order">
           <img src="https://www.figma.com/api/mcp/asset/2d6d871e-2c71-4418-a09d-8d8a2cc9d25c" alt=""> Упорядочить
         </div>
-        <div class="type-badge inactive">
+        <div class="type-badge inactive" data-type="select">
           <img src="https://www.figma.com/api/mcp/asset/fe8bb219-2cc9-47ea-a800-75b9c3280f7c" alt=""> Выбрать
         </div>
-        <div class="type-badge inactive">
+        <div class="type-badge inactive" data-type="remove">
           <img src="https://www.figma.com/api/mcp/asset/5f706136-1056-4e07-912a-fb185fc30c28" alt=""> Убрать
         </div>
       </div>
@@ -655,14 +652,6 @@ body {
     </div>
   </main>
 
-  <!-- FINALE SCREEN -->
-  <div class="finale-screen" id="finaleScreen">
-    <div class="finale-title">Викторина завершена!</div>
-    <div class="finale-score" id="finaleScore">0</div>
-    <div class="finale-label">очков набрано</div>
-    <button class="btn-restart" onclick="location.reload()">Сыграть снова</button>
-  </div>
-
   <!-- FOOTER -->
   <footer class="footer fu5">
     <div class="footer-btns">
@@ -731,8 +720,7 @@ function loadQuestion(idx) {
   // Dashboard
   dashLvl.textContent = 'Уровень №' + q.level;
   dashTyp.textContent = TYPE_LABELS[q.type] || '';
-  const bi = BADGE_TYPES.indexOf(q.type);
-  badges.forEach((b, i) => b.className = 'type-badge ' + (i === bi ? 'active' : 'inactive'));
+  badges.forEach(b => b.className = 'type-badge ' + (b.dataset.type === q.type ? 'active' : 'inactive'));
 
   // Dots — only questions of the same type (current level)
   const sameType = QUESTIONS.filter(qq => qq.type === q.type);
@@ -1076,13 +1064,19 @@ function checkAnswers() {
 
   const btn = document.getElementById('btnNext');
   btn.classList.add('enabled');
-  btn.textContent = qIndex + 1 < QUESTIONS.length ? 'СЛЕДУЮЩИЙ ВОПРОС' : 'ФИНАЛ';
+  btn.textContent = 'СЛЕДУЮЩИЙ ВОПРОС';
 }
 
 // ── FINALE ──
 function showFinale() {
-  document.getElementById('finaleScreen').classList.add('visible');
-  document.getElementById('finaleScore').textContent = totalScore;
+  clearInterval(timerInt);
+  ps.innerHTML = `
+    <div class="final-screen">
+      <div class="final-title">ВИКТОРИНА ЗАВЕРШЕНА!</div>
+      <div class="final-score">${totalScore}</div>
+      <div class="final-score-label">ОЧКОВ НАБРАНО</div>
+      <button class="btn-play" onclick="location.reload()">СЫГРАТЬ СНОВА</button>
+    </div>`;
 }
 
 // ── ПРАВКА 2: строгий порядок — bags → order → select → remove ──
